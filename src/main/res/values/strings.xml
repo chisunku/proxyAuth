@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">checking</string>
+    <string name="api_key">@string/API_KEY</string>
+</resources>
