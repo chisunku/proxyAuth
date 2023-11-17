@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
@@ -66,28 +68,13 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
             mapFragment.getMapAsync(this);
         }
 
-        zoomControls = findViewById(R.id.zoomControls);
-        zoomControls.setOnZoomInClickListener(new View.OnClickListener() {
+        Button saveBtn = findViewById(R.id.btnSave);
+        saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if (mMap != null) {
-                    mMap.animateCamera(CameraUpdateFactory.zoomIn());
-                }
+            public void onClick(View view) {
+                savePolygon();
             }
         });
-
-        zoomControls.setOnZoomOutClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMap != null) {
-                    mMap.animateCamera(CameraUpdateFactory.zoomOut());
-                }
-            }
-        });
-
-//        autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
-        // Set up AutoCompleteTextView adapter and other configurations as needed
-
 
         // Initialize the AutocompleteSupportFragment.
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
@@ -127,6 +114,9 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        UiSettings uiSettings = mMap.getUiSettings();
+        uiSettings.setZoomControlsEnabled(true);
+
         LatLng defaultLocation = new LatLng(37.7749, -122.4194);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
 
@@ -137,6 +127,36 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
             // Draw the Delaunay triangulation polygon
             drawDelaunayPolygon();
         });
+    }
+
+    private void savePolygon() {
+        // Convert polygonPoints (LatLng) to a list of custom objects or use a Map
+        List<Map<String, Double>> polygonDataList = new ArrayList<>();
+        for (LatLng point : polygonPoints) {
+            Map<String, Double> pointData = new HashMap<>();
+            pointData.put("latitude", point.latitude);
+            pointData.put("longitude", point.longitude);
+            polygonDataList.add(pointData);
+        }
+
+        Map<String, Object> location = new HashMap<>();
+        location.put("name", "SFO");
+        location.put("polygon", polygonDataList);
+
+        db.collection("cities").document("LA")
+                .set(location)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("DB insert", "DocumentSnapshot successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("DB insert", "Error writing document", e);
+                    }
+                });
     }
 
     private void drawDelaunayPolygon() {
