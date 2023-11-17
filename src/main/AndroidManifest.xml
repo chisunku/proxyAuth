@@ -16,7 +16,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="API_KEY" />
+            android:value="AIzaSyAHNqB-5OeXeVss95CwnVO7IFjKbJe7mzE" />
 
         <activity
             android:name=".MainActivity"
@@ -27,6 +27,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".Boundary"
+            android:label="Boundary">
+        </activity>
+
     </application>
 
 </manifest>
