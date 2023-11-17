@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "775266962535",
-    "project_id": "proxyauth-98bb5",
-    "storage_bucket": "proxyauth-98bb5.appspot.com"
+    "project_number": "31528086155",
+    "project_id": "proxyauth-f7666",
+    "storage_bucket": "proxyauth-f7666.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:775266962535:android:d78b9c61c7683d8b10d8c2",
+        "mobilesdk_app_id": "1:31528086155:android:03a9c44f4f2b42a60b428e",
         "android_client_info": {
           "package_name": "com.example.checking"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBk0sv1u43puh-BtNwqbTaLg6DVR7ECMlY"
+          "current_key": "AIzaSyANBDkk5W4d4mFDOM0uO7L3outQRWYb32Y"
         }
       ],
       "services": {
