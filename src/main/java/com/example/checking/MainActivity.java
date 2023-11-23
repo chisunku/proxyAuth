@@ -57,13 +57,12 @@ import com.google.android.libraries.places.api.Places;
 import com.google.maps.android.PolyUtil;
 
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private List<LatLng> polygonPoints = new ArrayList<>();
 
-    private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private FirebaseFirestore db;
@@ -77,26 +76,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         db = FirebaseFirestore.getInstance();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
-        }
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                if (locationResult.getLastLocation() != null) {
-                    userLocation = new LatLng(
-                            locationResult.getLastLocation().getLatitude(),
-                            locationResult.getLastLocation().getLongitude());
-
-                    // Add a marker at the user's location
-                    addMarker(userLocation);
-                }
-            }
-        };
+        requestLastLocation();
 
         Button btnSave = findViewById(R.id.addLocation);
         btnSave.setOnClickListener(new View.OnClickListener() {
@@ -106,6 +89,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Intent intent = new Intent(MainActivity.this, Boundary.class);
                 startActivity(intent);
 //                markAttendance();
+            }
+        });
+
+        Button attendance = findViewById(R.id.markAttendance);
+        attendance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(polygonPoints.size()>2){
+                    markAttendance();
+//                            System.out.println("yes!!!");
+                }
             }
         });
 
@@ -129,11 +123,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Log.d("TAG", "Latitude : "+o.get("latitude")+" Longitude : "+ o.get("longitude"));
                         }
                         Log.d("TAG", "polygonPoints length : "+ polygonPoints.size());
-
-                        if(polygonPoints.size()>2){
-                            markAttendance();
-//                            System.out.println("yes!!!");
-                        }
                     } else {
                         Log.d("TAG", "No such document");
                     }
@@ -144,43 +133,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        this.googleMap = googleMap;
-
-        UiSettings uiSettings = googleMap.getUiSettings();
-        uiSettings.setZoomControlsEnabled(true);
-
-        // Check and request location permission if needed
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            enableMyLocation();
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
-        }
-    }
-
     private void enableMyLocation() {
-        if (googleMap != null) {
-            // Enable the "My Location" layer if the permission has been granted.
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            googleMap.setMyLocationEnabled(true);
-
             // Zoom to the user's current location if available
             requestLastLocation();
             startLocationUpdates();
-        }
     }
 
     private void requestLastLocation() {
@@ -189,9 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             fusedLocationProviderClient.getLastLocation()
                     .addOnSuccessListener(location -> {
                         if (location != null) {
-                            LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                            addMarker(userLocation);
-                            moveCamera(userLocation);
+                            userLocation = new LatLng(location.getLatitude(), location.getLongitude());
                         }
                     })
                     .addOnFailureListener(e -> {
@@ -210,20 +164,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 == PackageManager.PERMISSION_GRANTED) {
             fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
         }
-    }
-
-    private void addMarker(LatLng position) {
-        // Remove previous markers
-        googleMap.clear();
-
-        // Add a marker at the user's location
-        MarkerOptions markerOptions = new MarkerOptions().position(position).title("Your Location");
-        Marker marker = googleMap.addMarker(markerOptions);
-        marker.showInfoWindow();
-    }
-
-    private void moveCamera(LatLng position) {
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15f));
     }
 
     @Override
@@ -251,8 +191,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void markAttendance(){
         // Check if the user is inside the polygon
-        boolean isInside = PolyUtil.containsLocation(userLocation, polygonPoints, true);
-        System.out.println("Is inside polygon: " + isInside);
+        if(polygonPoints.size()>0 && userLocation!=null) {
+            boolean isInside = PolyUtil.containsLocation(userLocation, polygonPoints, true);
+            System.out.println("Is inside polygon: " + isInside);
+            Toast.makeText(this, "Attendance " + isInside, Toast.LENGTH_SHORT).show();
+        }
+        System.out.println("polygonPoints : "+polygonPoints+" userLocation: "+userLocation);
     }
 
 }
