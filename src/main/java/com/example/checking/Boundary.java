@@ -19,12 +19,16 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import org.locationtech.jts.geom.Coordinate;
@@ -117,13 +121,43 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
         UiSettings uiSettings = mMap.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
 
+        //read from firestore
+        DocumentReference docRef = db.collection("cities").document("LA");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("TAG", "DocumentSnapshot data: " + document.getData());
+                        List<Map<String, Double>> polygonFromDB = (List<Map<String, Double>>) document.getData().get("polygon");
+                        Log.d("TAG", "latLang : "+ polygonFromDB);
+                        for(Map<String, Double> o : polygonFromDB){
+                            LatLng latLng = new LatLng(o.get("latitude"), o.get("longitude"));
+                            polygonPoints.add(latLng);
+                            Log.d("TAG", "Latitude : "+o.get("latitude")+" Longitude : "+ o.get("longitude"));
+                        }
+                        Log.d("TAG", "polygonPoints length : "+ polygonPoints.size());
+
+                        if(polygonPoints.size()>2){
+                            drawDelaunayPolygon();
+                        }
+                    } else {
+                        Log.d("TAG", "No such document");
+                    }
+                } else {
+                    Log.d("TAG", "get failed with ", task.getException());
+                }
+            }
+        });
+
         LatLng defaultLocation = new LatLng(37.7749, -122.4194);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
 
         mMap.setOnMapClickListener(latLng -> {
             // Add the clicked point to the polygon
             polygonPoints.add(latLng);
-
+            Log.d("TAG", "polygone looks like : "+polygonPoints);
             // Draw the Delaunay triangulation polygon
             drawDelaunayPolygon();
         });
@@ -161,10 +195,10 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
 
     private void drawDelaunayPolygon() {
         // Clear the existing polygon
-        if (polygon != null) {
-            polygon.remove();
-        }
-
+//        if (polygon != null) {
+//            polygon.remove();
+//        }
+        Log.d("TAG", "polygonPoints : "+polygonPoints);
         // Draw the Delaunay triangulation polygon with current points
         if (polygonPoints.size() > 2) {
             // Create a DelaunayTriangulationBuilder and add the points
