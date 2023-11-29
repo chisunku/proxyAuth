@@ -3,6 +3,7 @@ package com.example.checking;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -34,11 +36,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.core.Bound;
 
@@ -52,6 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import com.google.android.libraries.places.api.Places;
 import com.google.maps.android.PolyUtil;
@@ -62,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private List<LatLng> polygonPoints = new ArrayList<>();
+
+    ArrayList<LocationsModel> dataList = new ArrayList<>();
 
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
@@ -85,10 +93,10 @@ public class MainActivity extends AppCompatActivity {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 // Save the polygon if it is completely connected
-                Intent intent = new Intent(MainActivity.this, Boundary.class);
+                Intent intent = new Intent(MainActivity.this, LocationListView.class);
                 startActivity(intent);
-//                markAttendance();
             }
         });
 
@@ -96,39 +104,7 @@ public class MainActivity extends AppCompatActivity {
         attendance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(polygonPoints.size()>2){
-                    markAttendance();
-//                            System.out.println("yes!!!");
-                }
-            }
-        });
-
-        System.out.println("hellooooooo?????");
-
-        //read from firestore
-        DocumentReference docRef = db.collection("cities").document("LA");
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d("TAG", "DocumentSnapshot data: " + document.getData());
-                        System.out.println("document.getData() : "+ document.getData());
-                        List<Map<String, Double>> polygonFromDB = (List<Map<String, Double>>) document.getData().get("polygon");
-                        Log.d("TAG", "latLang : "+ polygonFromDB);
-                        for(Map<String, Double> o : polygonFromDB){
-                            LatLng latLng = new LatLng(o.get("latitude"), o.get("longitude"));
-                            polygonPoints.add(latLng);
-                            Log.d("TAG", "Latitude : "+o.get("latitude")+" Longitude : "+ o.get("longitude"));
-                        }
-                        Log.d("TAG", "polygonPoints length : "+ polygonPoints.size());
-                    } else {
-                        Log.d("TAG", "No such document");
-                    }
-                } else {
-                    Log.d("TAG", "get failed with ", task.getException());
-                }
+                markAttendance();
             }
         });
     }
@@ -182,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        stopLocationUpdates();
+//        stopLocationUpdates();
     }
 
     private void stopLocationUpdates() {
@@ -190,13 +166,81 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void markAttendance(){
-        // Check if the user is inside the polygon
-        if(polygonPoints.size()>0 && userLocation!=null) {
-            boolean isInside = PolyUtil.containsLocation(userLocation, polygonPoints, true);
-            System.out.println("Is inside polygon: " + isInside);
-            Toast.makeText(this, "Attendance " + isInside, Toast.LENGTH_SHORT).show();
+        new FetchDataAsyncTask().execute();
+
+    }
+
+    // Helper method to convert List<Point> to List<LatLng>
+    private List<LatLng> convertPointsToLatLngList(List<LocationsModel.Point> points) {
+        List<LatLng> latLngList = new ArrayList<>();
+        for (LocationsModel.Point point : points) {
+            latLngList.add(new LatLng(point.getLatitude(), point.getLongitude()));
         }
-        System.out.println("polygonPoints : "+polygonPoints+" userLocation: "+userLocation);
+        return latLngList;
+    }
+
+    public class FetchDataAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        public FetchDataAsyncTask() {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            System.out.println("location : "+userLocation+" "+dataList.size());
+            // Check if the user is inside the polygon
+            int att_flag = 0;
+            if(dataList.size()>0 && userLocation!=null) {
+                //check for all the locations
+                for(LocationsModel model : dataList) {
+                    boolean isInside = PolyUtil.containsLocation(userLocation, convertPointsToLatLngList(model.getPolygon()), true);
+                    System.out.println("Is inside polygon: " + isInside);
+                    if(isInside) {
+                        Toast.makeText(getApplicationContext(), "Attendance " + isInside, Toast.LENGTH_SHORT).show();
+                        att_flag = 1;
+                        break;
+                    }
+                }
+                if(att_flag == 0)
+                    Toast.makeText(getApplicationContext(), "Outside Geofencing location. If theres an issue call the HR.", Toast.LENGTH_SHORT).show();
+            }
+            System.out.println("polygonPoints : "+polygonPoints+" userLocation: "+userLocation);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            CollectionReference collectionRef = db.collection("cities");
+            Task<QuerySnapshot> task = collectionRef.get();
+            task.addOnCompleteListener(task1 -> {
+                if (task1.isSuccessful()) {
+                    QuerySnapshot querySnapshot = task1.getResult();
+                    if (querySnapshot != null) {
+                        for (QueryDocumentSnapshot document : querySnapshot) {
+                            LocationsModel model = document.toObject(LocationsModel.class);
+                            System.out.println("data : " + document.getData());
+                            System.out.println("after data: " + model.getName());
+                            dataList.add(model);
+                        }
+                    }
+                } else {
+                    // Handle errors
+                    Exception exception = task1.getException();
+                    if (exception != null) {
+                        // Handle the exception
+                    }
+                }
+            });
+
+            // Wait for the Firestore operation to complete
+            try {
+                Tasks.await(task);
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
     }
 
 }
