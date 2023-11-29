@@ -1,10 +1,13 @@
 package com.example.checking;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 import androidx.annotation.NonNull;
@@ -27,6 +30,8 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -95,23 +100,18 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
                 Log.i("Places_auto_complete", "Place: " + place.getName() + ", " + place.getId()+", "+place.getLatLng());
                 if (place != null && place.getLatLng() != null) {
                     Toast.makeText(Boundary.this, "in if"+ place.getLatLng(), Toast.LENGTH_SHORT).show();
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 10));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15));
                 }
                 else{
                     Toast.makeText(Boundary.this, "in else", Toast.LENGTH_SHORT).show();
                 }
             }
-
-
             @Override
             public void onError(@NonNull Status status) {
                 // TODO: Handle the error.
                 Log.i("Places_auto_complete", "An error occurred: " + status);
             }
         });
-
-
-
     }
 
     @Override
@@ -120,37 +120,6 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
 
         UiSettings uiSettings = mMap.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
-
-        //read from firestore
-        DocumentReference docRef = db.collection("cities").document("LA");
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d("TAG", "DocumentSnapshot data: " + document.getData());
-                        List<Map<String, Double>> polygonFromDB = (List<Map<String, Double>>) document.getData().get("polygon");
-                        Log.d("TAG", "latLang : "+ polygonFromDB);
-                        for(Map<String, Double> o : polygonFromDB){
-                            LatLng latLng = new LatLng(o.get("latitude"), o.get("longitude"));
-                            polygonPoints.add(latLng);
-                            Log.d("TAG", "Latitude : "+o.get("latitude")+" Longitude : "+ o.get("longitude"));
-                        }
-                        Log.d("TAG", "polygonPoints length : "+ polygonPoints.size());
-
-                        if(polygonPoints.size()>2){
-                            drawDelaunayPolygon();
-                        }
-                    } else {
-                        Log.d("TAG", "No such document");
-                    }
-                } else {
-                    Log.d("TAG", "get failed with ", task.getException());
-                }
-            }
-        });
-
         LatLng defaultLocation = new LatLng(37.7749, -122.4194);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
 
@@ -174,30 +143,38 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
         }
 
         Map<String, Object> location = new HashMap<>();
-        location.put("name", "SFO");
+        TextInputLayout locationName = findViewById(R.id.Name);
+        TextInputLayout locationAddress = findViewById(R.id.Address);
+        String address = String.valueOf(locationAddress.getEditText().getText());
+        location.put("name", String.valueOf(locationName.getEditText().getText()));
+        location.put("address", address);
         location.put("polygon", polygonDataList);
 
-        db.collection("cities").document("LA")
+        db.collection("cities").document(address)
                 .set(location)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("DB insert", "DocumentSnapshot successfully written!");
+                        Toast.makeText(Boundary.this, "New location added!", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w("DB insert", "Error writing document", e);
+                        Toast.makeText(Boundary.this, "Failed to add new location. Please try again!", Toast.LENGTH_SHORT).show();
                     }
                 });
+            Intent i = new Intent(Boundary.this, LocationListView.class);
+            startActivity(i);
     }
 
     private void drawDelaunayPolygon() {
         // Clear the existing polygon
-//        if (polygon != null) {
-//            polygon.remove();
-//        }
+        if (polygon != null) {
+            polygon.remove();
+        }
         Log.d("TAG", "polygonPoints : "+polygonPoints);
         // Draw the Delaunay triangulation polygon with current points
         if (polygonPoints.size() > 2) {
