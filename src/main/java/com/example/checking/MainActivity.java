@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -37,6 +38,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -63,13 +65,15 @@ import com.google.android.libraries.places.api.Places;
 import com.google.maps.android.PolyUtil;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private List<LatLng> polygonPoints = new ArrayList<>();
 
     ArrayList<LocationsModel> dataList = new ArrayList<>();
+
+    BottomNavigationView navigationView = null;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
@@ -81,32 +85,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        db = FirebaseFirestore.getInstance();
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-
+        navigationView = findViewById(R.id.bottom_navigation);
+        navigationView.setOnNavigationItemSelectedListener(navListener);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-
-        requestLastLocation();
-
-        Button btnSave = findViewById(R.id.addLocation);
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // Save the polygon if it is completely connected
-                Intent intent = new Intent(MainActivity.this, LocationListView.class);
-                startActivity(intent);
-            }
-        });
-
-        Button attendance = findViewById(R.id.markAttendance);
-        attendance.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                markAttendance();
-            }
-        });
+        HomeFragment fragment = new HomeFragment();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.content, fragment, "");
+        fragmentTransaction.commit();
     }
 
     private void enableMyLocation() {
@@ -154,93 +139,33 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-//        stopLocationUpdates();
-    }
-
-    private void stopLocationUpdates() {
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-    }
-
-    public void markAttendance(){
-        new FetchDataAsyncTask().execute();
-
-    }
-
-    // Helper method to convert List<Point> to List<LatLng>
-    private List<LatLng> convertPointsToLatLngList(List<LocationsModel.Point> points) {
-        List<LatLng> latLngList = new ArrayList<>();
-        for (LocationsModel.Point point : points) {
-            latLngList.add(new LatLng(point.getLatitude(), point.getLongitude()));
+    private final BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {
+        int itemId = item.getItemId();
+        if(itemId == R.id.home){
+            HomeFragment fragment = new HomeFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.content, fragment, "");
+            fragmentTransaction.addToBackStack("home");
+            fragmentTransaction.commit();
+            return true;
+        } else if (itemId == R.id.location) {
+            LocationListView fragment = new LocationListView();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.content, fragment, "");
+            fragmentTransaction.addToBackStack("location");
+            fragmentTransaction.commit();
+            return true;
         }
-        return latLngList;
-    }
+        // It will help to replace the
+        // one fragment to other.
+//        if (selectedFragment != null) {
+//            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+//        }
+        return false;
+    };
 
-    public class FetchDataAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        public FetchDataAsyncTask() {
-
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-            System.out.println("location : "+userLocation+" "+dataList.size());
-            // Check if the user is inside the polygon
-            int att_flag = 0;
-            if(dataList.size()>0 && userLocation!=null) {
-                //check for all the locations
-                for(LocationsModel model : dataList) {
-                    boolean isInside = PolyUtil.containsLocation(userLocation, convertPointsToLatLngList(model.getPolygon()), true);
-                    System.out.println("Is inside polygon: " + isInside);
-                    if(isInside) {
-                        Toast.makeText(getApplicationContext(), "Attendance " + isInside, Toast.LENGTH_SHORT).show();
-                        att_flag = 1;
-                        break;
-                    }
-                }
-                if(att_flag == 0)
-                    Toast.makeText(getApplicationContext(), "Outside Geofencing location. If theres an issue call the HR.", Toast.LENGTH_SHORT).show();
-            }
-            System.out.println("polygonPoints : "+polygonPoints+" userLocation: "+userLocation);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            CollectionReference collectionRef = db.collection("cities");
-            Task<QuerySnapshot> task = collectionRef.get();
-            task.addOnCompleteListener(task1 -> {
-                if (task1.isSuccessful()) {
-                    QuerySnapshot querySnapshot = task1.getResult();
-                    if (querySnapshot != null) {
-                        for (QueryDocumentSnapshot document : querySnapshot) {
-                            LocationsModel model = document.toObject(LocationsModel.class);
-                            System.out.println("data : " + document.getData());
-                            System.out.println("after data: " + model.getName());
-                            dataList.add(model);
-                        }
-                    }
-                } else {
-                    // Handle errors
-                    Exception exception = task1.getException();
-                    if (exception != null) {
-                        // Handle the exception
-                    }
-                }
-            });
-
-            // Wait for the Firestore operation to complete
-            try {
-                Tasks.await(task);
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
+    public void updateBottomNavigation(int itemId) {
+        navigationView.setSelectedItemId(itemId);
     }
 
 }

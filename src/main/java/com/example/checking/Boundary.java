@@ -3,7 +3,9 @@ package com.example.checking;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,7 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -47,7 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Boundary extends FragmentActivity implements OnMapReadyCallback {
+public class Boundary extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private List<LatLng> polygonPoints = new ArrayList<>();
@@ -57,27 +62,26 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
     private FirebaseFirestore db;
 
     private AutocompleteSupportFragment autocompleteFragment;
-
+    View view;
 
     private void initializePlaces() {
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), "AIzaSyAHNqB-5OeXeVss95CwnVO7IFjKbJe7mzE");
+            Places.initialize(getContext(), "AIzaSyAHNqB-5OeXeVss95CwnVO7IFjKbJe7mzE");
         }
     }
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.activity_maps, parent, false);
         db = FirebaseFirestore.getInstance();
         initializePlaces();
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
 
-        Button saveBtn = findViewById(R.id.btnSave);
+        Button saveBtn = view.findViewById(R.id.btnSave);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,8 +90,11 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
         });
 
         // Initialize the AutocompleteSupportFragment.
+//        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+//                 fragmentManager.findFragmentById(R.id.autocomplete_fragment);
+
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+                getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
         // Specify the types of place data to return.
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,  Place.Field.LAT_LNG));
@@ -99,11 +106,11 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
                 // TODO: Get info about the selected place.
                 Log.i("Places_auto_complete", "Place: " + place.getName() + ", " + place.getId()+", "+place.getLatLng());
                 if (place != null && place.getLatLng() != null) {
-                    Toast.makeText(Boundary.this, "in if"+ place.getLatLng(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "in if"+ place.getLatLng(), Toast.LENGTH_SHORT).show();
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15));
                 }
                 else{
-                    Toast.makeText(Boundary.this, "in else", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "in else", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
@@ -112,17 +119,19 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
                 Log.i("Places_auto_complete", "An error occurred: " + status);
             }
         });
+        return view;
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        UiSettings uiSettings = mMap.getUiSettings();
-        uiSettings.setZoomControlsEnabled(true);
         LatLng defaultLocation = new LatLng(37.7749, -122.4194);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
-
+        UiSettings uiSettings = mMap.getUiSettings();
+        // Enable or disable desired UI settings
+        uiSettings.setZoomControlsEnabled(true); // Show zoom controls
+        uiSettings.setCompassEnabled(true); // Show compass
+        uiSettings.setMyLocationButtonEnabled(true); // Show my location button
         mMap.setOnMapClickListener(latLng -> {
             // Add the clicked point to the polygon
             polygonPoints.add(latLng);
@@ -132,43 +141,94 @@ public class Boundary extends FragmentActivity implements OnMapReadyCallback {
         });
     }
 
+//    private void savePolygon() {
+//        // Convert polygonPoints (LatLng) to a list of custom objects or use a Map
+//        List<Map<String, Double>> polygonDataList = new ArrayList<>();
+//        for (LatLng point : polygonPoints) {
+//            Map<String, Double> pointData = new HashMap<>();
+//            pointData.put("latitude", point.latitude);
+//            pointData.put("longitude", point.longitude);
+//            polygonDataList.add(pointData);
+//        }
+//
+//        Map<String, Object> location = new HashMap<>();
+//        TextInputLayout locationName = view.findViewById(R.id.Name);
+//        TextInputLayout locationAddress = view.findViewById(R.id.Address);
+//        String address = String.valueOf(locationAddress.getEditText().getText());
+//        location.put("name", String.valueOf(locationName.getEditText().getText()));
+//        location.put("address", address);
+//        location.put("polygon", polygonDataList);
+//
+//        db.collection("cities").document(address)
+//                .set(location)
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Log.d("DB insert", "DocumentSnapshot successfully written!");
+//                        Toast.makeText(getContext(), "New location added!", Toast.LENGTH_SHORT).show();
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.w("DB insert", "Error writing document", e);
+//                        Toast.makeText(getContext(), "Failed to add new location. Please try again!", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//        LocationListView fragment = new LocationListView();
+//        FragmentManager fragmentManager = getFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        fragmentTransaction.replace(R.id.content, fragment, "");
+//        fragmentTransaction.addToBackStack("location");
+//        fragmentTransaction.commit();
+//    }
+
     private void savePolygon() {
-        // Convert polygonPoints (LatLng) to a list of custom objects or use a Map
-        List<Map<String, Double>> polygonDataList = new ArrayList<>();
-        for (LatLng point : polygonPoints) {
-            Map<String, Double> pointData = new HashMap<>();
-            pointData.put("latitude", point.latitude);
-            pointData.put("longitude", point.longitude);
-            polygonDataList.add(pointData);
+        if (polygonPoints.size() > 2) {
+            // Convert polygonPoints (LatLng) to a list of custom objects or use a Map
+            List<Map<String, Double>> polygonDataList = new ArrayList<>();
+            for (LatLng point : polygon.getPoints()) {
+                Map<String, Double> pointData = new HashMap<>();
+                pointData.put("latitude", point.latitude);
+                pointData.put("longitude", point.longitude);
+                polygonDataList.add(pointData);
+            }
+
+            Map<String, Object> location = new HashMap<>();
+            TextInputLayout locationName = view.findViewById(R.id.Name);
+            TextInputLayout locationAddress = view.findViewById(R.id.Address);
+            String address = String.valueOf(locationAddress.getEditText().getText());
+            location.put("name", String.valueOf(locationName.getEditText().getText()));
+            location.put("address", address);
+            location.put("polygon", polygonDataList);
+
+            db.collection("cities").document(address)
+                    .set(location)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("DB insert", "DocumentSnapshot successfully written!");
+                            Toast.makeText(getContext(), "New location added!", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("DB insert", "Error writing document", e);
+                            Toast.makeText(getContext(), "Failed to add new location. Please try again!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            LocationListView fragment = new LocationListView();
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.content, fragment, "");
+            fragmentTransaction.addToBackStack("location");
+            fragmentTransaction.commit();
+        } else {
+            Toast.makeText(getContext(), "Please draw a valid polygon on the map before saving.", Toast.LENGTH_SHORT).show();
         }
-
-        Map<String, Object> location = new HashMap<>();
-        TextInputLayout locationName = findViewById(R.id.Name);
-        TextInputLayout locationAddress = findViewById(R.id.Address);
-        String address = String.valueOf(locationAddress.getEditText().getText());
-        location.put("name", String.valueOf(locationName.getEditText().getText()));
-        location.put("address", address);
-        location.put("polygon", polygonDataList);
-
-        db.collection("cities").document(address)
-                .set(location)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("DB insert", "DocumentSnapshot successfully written!");
-                        Toast.makeText(Boundary.this, "New location added!", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("DB insert", "Error writing document", e);
-                        Toast.makeText(Boundary.this, "Failed to add new location. Please try again!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            Intent i = new Intent(Boundary.this, LocationListView.class);
-            startActivity(i);
     }
+
 
     private void drawDelaunayPolygon() {
         // Clear the existing polygon

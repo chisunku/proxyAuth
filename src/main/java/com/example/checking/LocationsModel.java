@@ -1,8 +1,9 @@
 package com.example.checking;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class LocationsModel {
+public class LocationsModel implements Serializable {
     private String address;
     private String name;
     private List<Point> polygon;
