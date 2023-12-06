@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,21 +16,26 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.handler> {
 
     private final Context context;
     private final ArrayList<LocationsModel> locationModelArrayList;
+    FragmentManager fragmentManager;
 
     // Constructor
-    public LocationAdapter(Context context, ArrayList<LocationsModel> locationModelArrayList) {
+    public LocationAdapter(Context context, ArrayList<LocationsModel> locationModelArrayList, FragmentManager fragmentManager) {
         this.context = context;
         this.locationModelArrayList = locationModelArrayList;
+        this.fragmentManager = fragmentManager;
     }
 
     @NonNull
@@ -46,6 +52,24 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.handle
         LocationsModel model = locationModelArrayList.get(position);
         holder.locationAddress.setText(model.getAddress());
         holder.locationCity.setText("" + model.getName());
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                callback.onItemClicked();
+                EditLocationFragment yourFragment = new EditLocationFragment();
+                Bundle args = new Bundle();
+                args.putSerializable("loc", (Serializable) model);
+                yourFragment.setArguments(args);
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content, yourFragment, "your_fragment_tag")
+                        .addToBackStack("location")
+                        .commit();
+            }
+        });
+
+        //Delete
+
+
     }
 
     @Override
