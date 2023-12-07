@@ -1,8 +1,9 @@
 package com.example.checking;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class attendance_card_model {
+public class attendance_card_model implements Serializable {
     private Timestamp time;
     private String status;
     private String boxName;

@@ -135,30 +135,24 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
             this.viewHolder = viewHolder;
         }
 
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-            //set the time in holder
-        }
 
         @Override
         protected Void doInBackground(Void... voids) {
             CollectionReference attendance = db.collection("attendance");
             Timestamp check = new Timestamp(System.currentTimeMillis());
-            SimpleDateFormat sdf = new SimpleDateFormat("d MMM YY @ hh:mm a");
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
             String formattedTime = sdf.format(check);
             System.out.println("time : "+formattedTime);
-            Attendance_model attendance_model = new Attendance_model("test@gmail.com", check, "Check Out", new Date(), R.drawable.checkout);
-            attendance.document("test@gmail.com-checkouts")
-                    .set(attendance_model)
-                    .addOnSuccessListener(aVoid -> {
-                        // Document added successfully
-                        System.out.println("Document added with custom ID: " + "test@gmail.com");
+            SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
+            String formattedDate = sdf1.format(check);
+            Attendance_model attendance_model = new Attendance_model("test@gmail.com", formattedTime, "Check Out", formattedDate, R.drawable.checkout);
+
+            attendance
+                    .add(attendance_model)
+                    .addOnSuccessListener(documentReference -> {
                         viewHolder.time.setText(formattedTime);
                     })
                     .addOnFailureListener(e -> {
-                        // Handle errors
-                        System.out.println("Error adding document: " + e.getMessage());
                     });
             return null;
         }
@@ -180,6 +174,7 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
             // Check if the user is inside the polygon
             int att_flag = 0;
             if(dataList.size()>0 && userLocation!=null) {
+
                 //check for all the locations
                 for(LocationsModel model : dataList) {
                     boolean isInside = PolyUtil.containsLocation(userLocation, convertPointsToLatLngList(model.getPolygon()), true);
@@ -188,28 +183,32 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
                         Toast.makeText(context, "Attendance Marked: "+model.getName()+" office." , Toast.LENGTH_SHORT).show();
                         CollectionReference attendanceRef = db.collection("attendance");
                         Timestamp check = new Timestamp(System.currentTimeMillis());
-                        Attendance_model attendance_model = new Attendance_model("test@gmail.com", check, "Check In", new Date(), R.drawable.checkin);
-                        SimpleDateFormat sdf = new SimpleDateFormat("d MMM YY @ hh:mm a");
+                        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
                         String formattedTime = sdf.format(check);
+                        SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
+                        String formattedDate = sdf1.format(check);
+                        Attendance_model attendance_model = new Attendance_model("test@gmail.com", formattedTime, "Check In", formattedDate, R.drawable.checkin);
                         System.out.println("time : "+formattedTime);
                         viewHolder.time.setText(formattedTime);
-                        attendanceRef.document("test@gmail.com-checkins")
-                                .set(attendance_model)
-                                .addOnSuccessListener(aVoid -> {
+                        attendanceRef
+                                .add(attendance_model)
+                                .addOnSuccessListener(documentReference -> {
                                     // Document added successfully
-                                    System.out.println("Document added with custom ID: " + "test@gmail.com");
+                                    String documentId = documentReference.getId();
+                                    // Handle success (e.g., display a message or perform additional actions)
                                 })
                                 .addOnFailureListener(e -> {
-                                    // Handle errors
-                                    System.out.println("Error adding document: " + e.getMessage());
+                                    // Handle failure (e.g., display an error message)
+//                        Log.e("Firestore", "Error adding document", e);
                                 });
                         //show the place:
-                        EditLocationFragment yourFragment = new EditLocationFragment();
+                        ShowAttendanceLocation yourFragment = new ShowAttendanceLocation();
                         Bundle args = new Bundle();
                         args.putSerializable("loc", (Serializable) model);
+                        args.putSerializable("attendance", (Serializable) attendance_model);
                         yourFragment.setArguments(args);
                         fragmentManager.beginTransaction()
-                                .replace(R.id.content, yourFragment, "your_fragment_tag")
+                                .replace(R.id.content, yourFragment, "location")
                                 .addToBackStack("location")
                                 .commit();
 

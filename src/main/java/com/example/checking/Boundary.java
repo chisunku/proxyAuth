@@ -125,8 +125,8 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng defaultLocation = new LatLng(37.7749, -122.4194);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
+//        LatLng defaultLocation = new LatLng(37.7749, -122.4194);
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
         UiSettings uiSettings = mMap.getUiSettings();
         // Enable or disable desired UI settings
         uiSettings.setZoomControlsEnabled(true); // Show zoom controls
