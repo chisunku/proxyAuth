@@ -65,4 +65,7 @@ dependencies {
     
     //image view circular
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    // Java language implementation
+    implementation "androidx.biometric:biometric:1.0.1"
 }

@@ -24,6 +24,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="170dp"
             android:layout_height="135dp"
+            android:padding="5dp"
             android:background="#C3DBED">
 
 
@@ -37,23 +38,38 @@
 
             <TextView
                 android:id="@+id/boxName"
-                android:layout_width="74dp"
-                android:layout_height="23dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
+                android:layout_width="96dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
                 android:text="Check In"
                 android:textColor="@color/black"
+                android:textSize="19dp"
                 app:layout_constraintStart_toEndOf="@+id/icon"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/time"
-                android:layout_width="wrap_content"
-                android:layout_height="19dp"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="21dp"
+                android:layout_width="113dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
                 android:text="Time"
                 android:textColor="@color/black"
+                android:textSize="18dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/icon" />
+
+            <TextView
+                android:id="@+id/Date"
+                android:layout_width="113dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="36dp"
+                android:layout_marginTop="36dp"
+                android:text="Time"
+                android:textColor="@color/grey"
+                android:textSize="15dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/icon" />
 

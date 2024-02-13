@@ -1,12 +1,15 @@
 package com.example.checking;
 
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,7 +55,6 @@ public class HomeFragment extends Fragment {
     String checkinDate = "";
     String checkoutDate = "";
     List<Attendance_model> dataHistory;
-    Timestamp today;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -64,7 +67,6 @@ public class HomeFragment extends Fragment {
         new FetchDataAsyncTask().execute();
         coursesGV = view.findViewById(R.id.idGVcourses);
         history = view.findViewById(R.id.attendanceHistory);
-
         return view;
     }
 
@@ -84,8 +86,6 @@ public class HomeFragment extends Fragment {
                         Toast.makeText(getContext(), "Failed to get location", Toast.LENGTH_SHORT).show();
                     });
         } else {
-            // Permission is not yet granted
-            // Request the permission
             ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
@@ -171,8 +171,16 @@ public class HomeFragment extends Fragment {
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            courseModelArrayList.add(new Attendance_model("", checkintime,"Check In", checkinDate, R.drawable.checkin));
-            courseModelArrayList.add(new Attendance_model("", checkoutTime,"Check Out", checkoutDate, R.drawable.checkout));
+            String CheckinBox = "Check In";
+            String CheckoutBox = "Check Out";
+            if(!checkintime.equals("not Checked in")){
+                CheckinBox = "Checked In";
+            }
+            if(!checkoutTime.equals("not Checked out")){
+                CheckoutBox = "Checked Out";
+            }
+            courseModelArrayList.add(new Attendance_model("", checkintime ,CheckinBox, checkinDate, R.drawable.checkin));
+            courseModelArrayList.add(new Attendance_model("", checkoutTime,CheckoutBox, checkoutDate, R.drawable.checkout));
             FragmentManager fragmentManager = getFragmentManager();
             attendace_recycler_adapter adapter1 = new attendace_recycler_adapter(getContext(), courseModelArrayList, fragmentManager, userLocation);
             int spanCount = 2;
@@ -188,13 +196,12 @@ public class HomeFragment extends Fragment {
             String formattedDate = sdf1.format(today);
             System.out.println("formattedDate : " + formattedDate);
             CollectionReference documentRef = db.collection("attendance");
-
             try {
                 // Block on the task to retrieve the result synchronously
                 Task<QuerySnapshot> task = documentRef
                         .whereEqualTo("email", "test@gmail.com") // Replace with the actual user's email
                         .whereEqualTo("date", formattedDate)
-                        .whereEqualTo("timeRef", "Check In")
+                        .whereEqualTo("timeRef", "Checked In")
                         .get();
 
                 Tasks.await(task);
@@ -223,7 +230,7 @@ public class HomeFragment extends Fragment {
                 Task<QuerySnapshot> task1 = documentRef
                         .whereEqualTo("email", "test@gmail.com") // Replace with the actual user's email
                         .whereEqualTo("date", formattedDate)
-                        .whereEqualTo("timeRef", "Check Out")
+                        .whereEqualTo("timeRef", "Checked Out")
                         .get();
 
                 Tasks.await(task1);
