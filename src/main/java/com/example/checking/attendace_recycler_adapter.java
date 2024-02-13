@@ -17,6 +17,8 @@ package com.example.checking;
         import androidx.fragment.app.FragmentManager;
         import androidx.recyclerview.widget.RecyclerView;
 
+        import com.example.checking.Model.AttendanceModel;
+        import com.example.checking.Model.LocationsModel;
         import com.google.android.gms.location.FusedLocationProviderClient;
         import com.google.android.gms.location.LocationServices;
         import com.google.android.gms.maps.model.LatLng;
@@ -32,25 +34,24 @@ package com.example.checking;
         import java.sql.Timestamp;
         import java.text.SimpleDateFormat;
         import java.util.ArrayList;
-        import java.util.Date;
         import java.util.List;
         import java.util.concurrent.ExecutionException;
 
 public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_recycler_adapter.handler> {
 
     private final Context context;
-    private final ArrayList<Attendance_model> locationModelArrayList;
+    private final ArrayList<AttendanceModel> locationModelArrayList;
     FragmentManager fragmentManager;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private FirebaseFirestore db;
     ArrayList<LocationsModel> dataList;
     private LatLng userLocation;
     LocationsModel currentLocation;
-    Attendance_model attendance_model;
+    AttendanceModel attendance_model;
     boolean checkedin = false;
 
     // Constructor
-    public attendace_recycler_adapter(Context context, ArrayList<Attendance_model> locationModelArrayList, FragmentManager fragmentManager, LatLng userLocation) {
+    public attendace_recycler_adapter(Context context, ArrayList<AttendanceModel> locationModelArrayList, FragmentManager fragmentManager, LatLng userLocation) {
         this.context = context;
         this.locationModelArrayList = locationModelArrayList;
         this.fragmentManager = fragmentManager;
@@ -73,7 +74,7 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
     public void onBindViewHolder(@NonNull attendace_recycler_adapter.handler holder, int position) {
         // to set data to textview and imageview of each card layout
         System.out.println("in adapter binder holder");
-        Attendance_model model = locationModelArrayList.get(position);
+        AttendanceModel model = locationModelArrayList.get(position);
         holder.boxName.setText(model.getTimeRef());
         holder.time.setText("" + model.getTime());
         holder.date.setText(""+model.getDate());
@@ -166,7 +167,7 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
                 if (task.isSuccessful()) {
                     // Handle the task result and extract the attendance records for the specified date
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        Attendance_model attendanceRecord = document.toObject(Attendance_model.class);
+                        AttendanceModel attendanceRecord = document.toObject(AttendanceModel.class);
                         currentLocation = attendanceRecord.getLocationsModel();
                     }
                     // Do something with the attendanceList for the specified date
@@ -206,7 +207,7 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
             System.out.println("time : "+formattedTime);
             SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
             String formattedDate = sdf1.format(check);
-            Attendance_model attendance_model = new Attendance_model("test@gmail.com", formattedTime, "Checked Out", formattedDate, R.drawable.checkout);
+            AttendanceModel attendance_model = new AttendanceModel("test@gmail.com", formattedTime, "Checked Out", formattedDate, R.drawable.checkout);
 
             attendance
                     .add(attendance_model)
@@ -243,7 +244,7 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
                             String formattedTime = sdf.format(check);
                             SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
                             String formattedDate = sdf1.format(check);
-                            attendance_model = new Attendance_model("test@gmail.com", formattedDate, "Checked In", formattedDate, R.drawable.checkin);
+                            attendance_model = new AttendanceModel("test@gmail.com", formattedDate, "Checked In", formattedDate, R.drawable.checkin);
                             attendance_model.setLocationsModel(currentLocation);
                             System.out.println("time : " + formattedTime);
                             viewHolder.time.setText(formattedTime);

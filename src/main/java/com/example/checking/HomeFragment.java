@@ -1,15 +1,11 @@
 package com.example.checking;
 
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +17,10 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.checking.Model.AttendanceModel;
+import com.example.checking.Model.LocationsModel;
+import com.example.checking.Service.APIService;
+import com.example.checking.Service.RetrofitClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
@@ -31,19 +31,20 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.io.File;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class HomeFragment extends Fragment {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private FirebaseFirestore db;
     private LatLng userLocation;
-    ArrayList<Attendance_model> courseModelArrayList;
+    ArrayList<AttendanceModel> courseModelArrayList;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
@@ -54,7 +55,7 @@ public class HomeFragment extends Fragment {
 
     String checkinDate = "";
     String checkoutDate = "";
-    List<Attendance_model> dataHistory;
+    List<AttendanceModel> dataHistory;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -131,7 +132,7 @@ public class HomeFragment extends Fragment {
                 if (task.isSuccessful()) {
                     dataHistory = new ArrayList<>();
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        Attendance_model data = document.toObject(Attendance_model.class);
+                        AttendanceModel data = document.toObject(AttendanceModel.class);
                         System.out.println("data : "+data.getDate()+" "+data.getEmail());
                         dataHistory.add(data);
                     }
@@ -179,8 +180,8 @@ public class HomeFragment extends Fragment {
             if(!checkoutTime.equals("not Checked out")){
                 CheckoutBox = "Checked Out";
             }
-            courseModelArrayList.add(new Attendance_model("", checkintime ,CheckinBox, checkinDate, R.drawable.checkin));
-            courseModelArrayList.add(new Attendance_model("", checkoutTime,CheckoutBox, checkoutDate, R.drawable.checkout));
+            courseModelArrayList.add(new AttendanceModel("", checkintime ,CheckinBox, checkinDate, R.drawable.checkin));
+            courseModelArrayList.add(new AttendanceModel("", checkoutTime,CheckoutBox, checkoutDate, R.drawable.checkout));
             FragmentManager fragmentManager = getFragmentManager();
             attendace_recycler_adapter adapter1 = new attendace_recycler_adapter(getContext(), courseModelArrayList, fragmentManager, userLocation);
             int spanCount = 2;
@@ -191,69 +192,36 @@ public class HomeFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... voids) {
             courseModelArrayList = new ArrayList<>();
-            Timestamp today = new Timestamp(System.currentTimeMillis());
-            SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
-            String formattedDate = sdf1.format(today);
-            System.out.println("formattedDate : " + formattedDate);
+//            Timestamp today = new Timestamp(System.currentTimeMillis());
+//            SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
+//            String formattedDate = sdf1.format(today);
+            Date checkinTime = new Date();
+            System.out.println("formattedDate : " + checkinTime);
             CollectionReference documentRef = db.collection("attendance");
-            try {
-                // Block on the task to retrieve the result synchronously
-                Task<QuerySnapshot> task = documentRef
-                        .whereEqualTo("email", "test@gmail.com") // Replace with the actual user's email
-                        .whereEqualTo("date", formattedDate)
-                        .whereEqualTo("timeRef", "Checked In")
-                        .get();
+            try{
+                //call updateCheckIn API
+                APIService apiService = RetrofitClient.getClient().create(APIService.class);
 
-                Tasks.await(task);
+                Call<List<LocationsModel>> call = apiService.getAllLocations();
 
-                if (task.isSuccessful()) {
-                    // Handle the task result and extract the attendance records for the specified date
-                    List<Attendance_model> attendanceList = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Attendance_model attendanceRecord = document.toObject(Attendance_model.class);
-                        System.out.println("data in fetch : " + attendanceRecord.getEmail() + " " + attendanceRecord.getTime());
-                        attendanceList.add(attendanceRecord);
-                        checkintime = attendanceRecord.getTime();
-                        checkinDate = attendanceRecord.getDate();
+                call.enqueue(new Callback<List<LocationsModel>>() {
+                    @Override
+                    public void onResponse(Call<List<LocationsModel>> call, Response<List<LocationsModel>> response) {
+                        if (response.isSuccessful()) {
+                            List<LocationsModel> attendanceList = response.body();
+                            System.out.println("location list : "+attendanceList);
+                            // Handle the list of AttendanceModel objects
+                        } else {
+                            // Handle unsuccessful response
+                        }
                     }
-                    // Do something with the attendanceList for the specified date
-                } else {
-                    System.out.println("No data found!!!");
-                    // Handle errors
-                    Exception e = task.getException();
-                    if (e != null) {
-                        e.printStackTrace();
-                    }
-                }
 
-                // Block on the task to retrieve the result synchronously -- checkout
-                Task<QuerySnapshot> task1 = documentRef
-                        .whereEqualTo("email", "test@gmail.com") // Replace with the actual user's email
-                        .whereEqualTo("date", formattedDate)
-                        .whereEqualTo("timeRef", "Checked Out")
-                        .get();
-
-                Tasks.await(task1);
-
-                if (task.isSuccessful()) {
-                    // Handle the task result and extract the attendance records for the specified date
-                    List<Attendance_model> attendanceList = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : task1.getResult()) {
-                        Attendance_model attendanceRecord = document.toObject(Attendance_model.class);
-                        System.out.println("data in fetch : " + attendanceRecord.getEmail() + " " + attendanceRecord.getTime());
-                        attendanceList.add(attendanceRecord);
-                        checkoutTime = attendanceRecord.getTime();
-                        checkoutDate = attendanceRecord.getDate();
+                    @Override
+                    public void onFailure(Call<List<LocationsModel>> call, Throwable t) {
+                        // Handle network errors
                     }
-                } else {
-                    System.out.println("No data found!!!");
-                    // Handle errors
-                    Exception e = task.getException();
-                    if (e != null) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (ExecutionException | InterruptedException e) {
+                });
+            }catch(Exception e){
                 e.printStackTrace();
             }
 
