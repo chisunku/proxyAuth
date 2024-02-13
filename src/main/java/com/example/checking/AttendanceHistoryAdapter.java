@@ -9,21 +9,23 @@ package com.example.checking;
         import androidx.cardview.widget.CardView;
         import androidx.fragment.app.FragmentManager;
         import androidx.recyclerview.widget.RecyclerView;
-        import java.util.ArrayList;
+
+        import com.example.checking.Model.AttendanceModel;
+
         import java.util.List;
 
 public class AttendanceHistoryAdapter extends RecyclerView.Adapter<AttendanceHistoryAdapter.handler> {
 
     private final Context context;
-    private List<Attendance_model> locationModelArrayList;
+    private List<AttendanceModel> locationModelArrayList;
     FragmentManager fragmentManager;
 
     // Constructor
-    public AttendanceHistoryAdapter(Context context, List<Attendance_model> locationModelArrayList) {
+    public AttendanceHistoryAdapter(Context context, List<AttendanceModel> locationModelArrayList) {
         this.context = context;
         this.locationModelArrayList = locationModelArrayList;
     }
-    public void setData(List<Attendance_model> locationModelArrayList) {
+    public void setData(List<AttendanceModel> locationModelArrayList) {
         this.locationModelArrayList = locationModelArrayList;
     }
 
@@ -40,7 +42,7 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<AttendanceHis
     public void onBindViewHolder(@NonNull AttendanceHistoryAdapter.handler holder, int position) {
         // to set data to textview and imageview of each card layout
         System.out.println("in adapter binder holder");
-        Attendance_model model = locationModelArrayList.get(position);
+        AttendanceModel model = locationModelArrayList.get(position);
         holder.boxName.setText(model.getTimeRef());
         holder.time.setText("" + model.getTime());
         holder.img.setImageResource(model.getImgId());

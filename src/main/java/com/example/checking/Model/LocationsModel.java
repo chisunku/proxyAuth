@@ -1,4 +1,4 @@
-package com.example.checking;
+package com.example.checking.Model;
 
 import java.io.Serializable;
 import java.util.List;
