@@ -11,6 +11,7 @@ public class Attendance_model implements Serializable {
     String timeRef;
     String date;
     private int imgId;
+    private LocationsModel locationsModel;
 
     public Attendance_model(){
 
@@ -36,6 +37,7 @@ public class Attendance_model implements Serializable {
     public void setTimeRef(String timeRef){
         this.timeRef = timeRef;
     }
+    public void setLocationsModel(LocationsModel locationsModel){this.locationsModel = locationsModel;}
 
     public String getEmail(){
         return email;
@@ -52,4 +54,5 @@ public class Attendance_model implements Serializable {
     public int getImgId(){
         return imgId;
     }
+    public LocationsModel getLocationsModel(){return locationsModel;}
 }

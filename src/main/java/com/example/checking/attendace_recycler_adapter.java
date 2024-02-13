@@ -45,6 +45,9 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
     private FirebaseFirestore db;
     ArrayList<LocationsModel> dataList;
     private LatLng userLocation;
+    LocationsModel currentLocation;
+    Attendance_model attendance_model;
+    boolean checkedin = false;
 
     // Constructor
     public attendace_recycler_adapter(Context context, ArrayList<Attendance_model> locationModelArrayList, FragmentManager fragmentManager, LatLng userLocation) {
@@ -73,19 +76,34 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
         Attendance_model model = locationModelArrayList.get(position);
         holder.boxName.setText(model.getTimeRef());
         holder.time.setText("" + model.getTime());
+        holder.date.setText(""+model.getDate());
         holder.img.setImageResource(model.getImgId());
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                callback.onItemClicked();
                 requestLastLocation();
-                System.out.println("In the on click thing!!!");
                 if("Check In".equals(holder.boxName.getText().toString())) {
                     markAttendance(holder);
                 }
                 else if ("Check Out".equals(holder.boxName.getText().toString())) {
                     System.out.println("Check Out!!");
                     martCheckOut(holder);
+                }
+                else if("Checked In".equals(holder.boxName.getText().toString())){
+                    checkedin = true;
+                    new attendace_recycler_adapter.fetchLocation().execute();
+                    if(currentLocation!=null){
+                        ShowAttendanceLocation yourFragment = new ShowAttendanceLocation();
+                        Bundle args = new Bundle();
+                        args.putSerializable("loc", (Serializable) currentLocation);
+                        args.putSerializable("attendance", (Serializable) model);
+                        yourFragment.setArguments(args);
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.content, yourFragment, "location")
+                                .addToBackStack("location")
+                                .commit();
+                    }
                 }
             }
         });
@@ -104,6 +122,7 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
         //        private final ImageView courseIV;
         private final TextView boxName;
         private final TextView time;
+        private final TextView date;
         private CardView cardView;
         private ImageView img;
 
@@ -113,6 +132,7 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
             time = itemView.findViewById(R.id.time);
             cardView = itemView.findViewById(R.id.card);
             img = itemView.findViewById(R.id.icon);
+            date = itemView.findViewById(R.id.Date);
         }
     }
 
@@ -124,6 +144,47 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
     public void martCheckOut(attendace_recycler_adapter.handler holder){
         new attendace_recycler_adapter.checkout(holder).execute();
 
+    }
+
+    public class fetchLocation extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            CollectionReference documentRef = db.collection("attendance");
+            try {
+                Timestamp today = new Timestamp(System.currentTimeMillis());
+                SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
+                String formattedDate = sdf1.format(today);
+                // Block on the task to retrieve the result synchronously
+                Task<QuerySnapshot> task = documentRef
+                        .whereEqualTo("email", "test@gmail.com") // Replace with the actual user's email
+                        .whereEqualTo("date", formattedDate)
+                        .whereEqualTo("timeRef", "Checked In")
+                        .get();
+
+                Tasks.await(task);
+
+                if (task.isSuccessful()) {
+                    // Handle the task result and extract the attendance records for the specified date
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Attendance_model attendanceRecord = document.toObject(Attendance_model.class);
+                        currentLocation = attendanceRecord.getLocationsModel();
+                    }
+                    // Do something with the attendanceList for the specified date
+                } else {
+                    System.out.println("No data found!!!");
+                    // Handle errors
+                    Exception e = task.getException();
+                    if (e != null) {
+                        e.printStackTrace();
+                    }
+                }
+                return null;
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public class checkout extends AsyncTask<Void, Void, Void> {
@@ -145,7 +206,7 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
             System.out.println("time : "+formattedTime);
             SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
             String formattedDate = sdf1.format(check);
-            Attendance_model attendance_model = new Attendance_model("test@gmail.com", formattedTime, "Check Out", formattedDate, R.drawable.checkout);
+            Attendance_model attendance_model = new Attendance_model("test@gmail.com", formattedTime, "Checked Out", formattedDate, R.drawable.checkout);
 
             attendance
                     .add(attendance_model)
@@ -170,60 +231,52 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            System.out.println("location : "+userLocation+" "+dataList.size());
-            // Check if the user is inside the polygon
-            int att_flag = 0;
-            if(dataList.size()>0 && userLocation!=null) {
-
-                //check for all the locations
-                for(LocationsModel model : dataList) {
-                    boolean isInside = PolyUtil.containsLocation(userLocation, convertPointsToLatLngList(model.getPolygon()), true);
-                    System.out.println("Is inside polygon: " + isInside);
-                    if(isInside) {
-                        Toast.makeText(context, "Attendance Marked: "+model.getName()+" office." , Toast.LENGTH_SHORT).show();
-                        CollectionReference attendanceRef = db.collection("attendance");
-                        Timestamp check = new Timestamp(System.currentTimeMillis());
-                        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-                        String formattedTime = sdf.format(check);
-                        SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
-                        String formattedDate = sdf1.format(check);
-                        Attendance_model attendance_model = new Attendance_model("test@gmail.com", formattedTime, "Check In", formattedDate, R.drawable.checkin);
-                        System.out.println("time : "+formattedTime);
-                        viewHolder.time.setText(formattedTime);
-                        attendanceRef
-                                .add(attendance_model)
-                                .addOnSuccessListener(documentReference -> {
-                                    // Document added successfully
-                                    String documentId = documentReference.getId();
-                                    // Handle success (e.g., display a message or perform additional actions)
-                                })
-                                .addOnFailureListener(e -> {
-                                    // Handle failure (e.g., display an error message)
-//                        Log.e("Firestore", "Error adding document", e);
-                                });
-                        //show the place:
-                        ShowAttendanceLocation yourFragment = new ShowAttendanceLocation();
-                        Bundle args = new Bundle();
-                        args.putSerializable("loc", (Serializable) model);
-                        args.putSerializable("attendance", (Serializable) attendance_model);
-                        yourFragment.setArguments(args);
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.content, yourFragment, "location")
-                                .addToBackStack("location")
-                                .commit();
+                // Check if the user is inside the polygon
+                int att_flag = 0;
+                if (currentLocation!=null) {
+                            System.out.println("the location : "+ currentLocation.getName());
+                            if(!checkedin) {
+                            Toast.makeText(context, "Attendance Marked: " + currentLocation.getName() + " office.", Toast.LENGTH_SHORT).show();
+                            CollectionReference attendanceRef = db.collection("attendance");
+                            Timestamp check = new Timestamp(System.currentTimeMillis());
+                            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+                            String formattedTime = sdf.format(check);
+                            SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
+                            String formattedDate = sdf1.format(check);
+                            attendance_model = new Attendance_model("test@gmail.com", formattedDate, "Checked In", formattedDate, R.drawable.checkin);
+                            attendance_model.setLocationsModel(currentLocation);
+                            System.out.println("time : " + formattedTime);
+                            viewHolder.time.setText(formattedTime);
+                            attendanceRef
+                                    .add(attendance_model)
+                                    .addOnSuccessListener(documentReference -> {
+                                    })
+                                    .addOnFailureListener(e -> {
+                                    });
+                            //show the place:
+                            ShowAttendanceLocation yourFragment = new ShowAttendanceLocation();
+                            Bundle args = new Bundle();
+                            args.putSerializable("loc", (Serializable) currentLocation);
+                            args.putSerializable("attendance", (Serializable) attendance_model);
+                            yourFragment.setArguments(args);
+                            fragmentManager.beginTransaction()
+                                    .replace(R.id.content, yourFragment, "location")
+                                    .addToBackStack("location")
+                                    .commit();
+                            checkedin = true;
 
 //                        }
-                        return;
+                            return;
+                        }
                     }
+                    if (att_flag == 0)
+                        Toast.makeText(context, "Outside Geofencing location. If theres an issue call the HR.", Toast.LENGTH_SHORT).show();
                 }
-                if(att_flag == 0)
-                    Toast.makeText(context, "Outside Geofencing location. If theres an issue call the HR.", Toast.LENGTH_SHORT).show();
-            }
-        }
 
         @Override
         protected Void doInBackground(Void... voids) {
             dataList = new ArrayList<LocationsModel>();
+            System.out.println("coming here....");
             CollectionReference collectionRef = db.collection("cities");
             Task<QuerySnapshot> task = collectionRef.get();
             task.addOnCompleteListener(task1 -> {
@@ -232,6 +285,12 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
                     if (querySnapshot != null) {
                         for (QueryDocumentSnapshot document : querySnapshot) {
                             LocationsModel model = document.toObject(LocationsModel.class);
+                            boolean isInside = PolyUtil.containsLocation(userLocation, convertPointsToLatLngList(model.getPolygon()), true);
+                            if(isInside){
+                                System.out.println("location inside : "+model.getName());
+                                currentLocation = model;
+                                break;
+                            }
                             System.out.println("data : " + document.getData());
                             System.out.println("after data: " + model.getName());
                             dataList.add(model);
@@ -245,7 +304,6 @@ public class attendace_recycler_adapter extends RecyclerView.Adapter<attendace_r
                     }
                 }
             });
-
             // Wait for the Firestore operation to complete
             try {
                 Tasks.await(task);
