@@ -35,6 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|right"
                 android:contentDescription="plus"
+                android:foregroundGravity="bottom"
                 app:backgroundTint="@color/blue"
                 app:fabSize="mini"
                 app:srcCompat="@drawable/plus"/>

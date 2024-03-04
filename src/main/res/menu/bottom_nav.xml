@@ -9,4 +9,18 @@
         android:enabled="true"
         android:icon="@drawable/location"
         android:title="Locations"/>
+    <item
+        android:id="@+id/placeholder"
+        android:enabled="true"
+        android:title=""/>
+    <item
+        android:id="@+id/leave"
+        android:enabled="true"
+        android:icon="@drawable/leave_foreground"
+        android:title="Leave"/>
+    <item
+        android:id="@+id/location1"
+        android:enabled="true"
+        android:icon="@drawable/location"
+        android:title="Locations"/>
 </menu>

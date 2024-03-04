@@ -9,7 +9,7 @@ package com.example.checking;
 
         import androidx.fragment.app.Fragment;
 
-        import com.example.checking.Model.AttendanceModel;
+        import com.example.checking.Model.Attendance;
         import com.example.checking.Model.LocationsModel;
         import com.google.android.gms.maps.CameraUpdateFactory;
         import com.google.android.gms.maps.GoogleMap;
@@ -30,7 +30,7 @@ public class ShowAttendanceLocation extends Fragment implements OnMapReadyCallba
         View view = inflater.inflate(R.layout.activity_show_attendance_location, parent, false);
         Bundle args = getArguments();
         LocationsModel loc = (LocationsModel) args.getSerializable("loc");
-        AttendanceModel att = (AttendanceModel) args.getSerializable("attendance");
+        Attendance att = (Attendance) args.getSerializable("attendance");
         System.out.println("Name: "+loc.getName());
         polygon = loc.getPolygon();
         TextView address = view.findViewById(R.id.address);
@@ -44,7 +44,7 @@ public class ShowAttendanceLocation extends Fragment implements OnMapReadyCallba
 
         TextView date  = view.findViewById(R.id.date);
         TextView time = view.findViewById(R.id.time);
-        date.setText(att.getTime());
+        date.setText(att.getCheckInDate().toString());
         time.setText(loc.getAddress());
 
         return view;

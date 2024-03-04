@@ -1,6 +1,5 @@
 package com.example.checking;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,16 +7,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.checking.Model.LocationsModel;
+import com.example.checking.Service.APIService;
+import com.example.checking.Service.RetrofitClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,20 +26,12 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -48,20 +39,18 @@ import org.locationtech.jts.triangulate.DelaunayTriangulationBuilder;
 import org.locationtech.jts.triangulate.quadedge.QuadEdgeSubdivision;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Boundary extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private List<LatLng> polygonPoints = new ArrayList<>();
     private Polygon polygon;
-    private ZoomControls zoomControls;
-    private AutoCompleteTextView autoCompleteTextView;
-    private FirebaseFirestore db;
-
-    private AutocompleteSupportFragment autocompleteFragment;
+    APIService apiService = RetrofitClient.getClient().create(APIService.class);
     View view;
 
     private void initializePlaces() {
@@ -70,11 +59,9 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_maps, parent, false);
-        db = FirebaseFirestore.getInstance();
         initializePlaces();
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -88,10 +75,6 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
                 savePolygon();
             }
         });
-
-        // Initialize the AutocompleteSupportFragment.
-//        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-//                 fragmentManager.findFragmentById(R.id.autocomplete_fragment);
 
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
                 getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
@@ -107,7 +90,20 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
                 Log.i("Places_auto_complete", "Place: " + place.getName() + ", " + place.getId()+", "+place.getLatLng());
                 if (place != null && place.getLatLng() != null) {
                     Toast.makeText(getContext(), "in if"+ place.getLatLng(), Toast.LENGTH_SHORT).show();
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15));
+//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15), new GoogleMap.CancelableCallback() {
+                        @Override
+                        public void onFinish() {
+                            // Re-enable map gestures after the camera animation finishes
+                            mMap.getUiSettings().setAllGesturesEnabled(true);
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            // Re-enable map gestures even if the camera animation is canceled
+                            mMap.getUiSettings().setAllGesturesEnabled(true);
+                        }
+                    });
                 }
                 else{
                     Toast.makeText(getContext(), "in else", Toast.LENGTH_SHORT).show();
@@ -125,13 +121,20 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-//        LatLng defaultLocation = new LatLng(37.7749, -122.4194);
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
+
         UiSettings uiSettings = mMap.getUiSettings();
         // Enable or disable desired UI settings
         uiSettings.setZoomControlsEnabled(true); // Show zoom controls
         uiSettings.setCompassEnabled(true); // Show compass
-        uiSettings.setMyLocationButtonEnabled(true); // Show my location button
+        uiSettings.setZoomGesturesEnabled(true); // Enable zoom gestures
+        uiSettings.setScrollGesturesEnabled(true); // Enable pinch-to-zoom
+
+//        UiSettings uiSettings = mMap.getUiSettings();
+//        // Enable or disable desired UI settings
+////        uiSettings.setZoomControlsEnabled(true); // Show zoom controls
+//        uiSettings.setCompassEnabled(true); // Show compass
+//        uiSettings.setZoomGesturesEnabled(true);
+////        uiSettings.setMyLocationButtonEnabled(true); // Show my location button
         mMap.setOnMapClickListener(latLng -> {
             // Add the clicked point to the polygon
             polygonPoints.add(latLng);
@@ -141,83 +144,35 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
         });
     }
 
-//    private void savePolygon() {
-//        // Convert polygonPoints (LatLng) to a list of custom objects or use a Map
-//        List<Map<String, Double>> polygonDataList = new ArrayList<>();
-//        for (LatLng point : polygonPoints) {
-//            Map<String, Double> pointData = new HashMap<>();
-//            pointData.put("latitude", point.latitude);
-//            pointData.put("longitude", point.longitude);
-//            polygonDataList.add(pointData);
-//        }
-//
-//        Map<String, Object> location = new HashMap<>();
-//        TextInputLayout locationName = view.findViewById(R.id.Name);
-//        TextInputLayout locationAddress = view.findViewById(R.id.Address);
-//        String address = String.valueOf(locationAddress.getEditText().getText());
-//        location.put("name", String.valueOf(locationName.getEditText().getText()));
-//        location.put("address", address);
-//        location.put("polygon", polygonDataList);
-//
-//        db.collection("cities").document(address)
-//                .set(location)
-//                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void aVoid) {
-//                        Log.d("DB insert", "DocumentSnapshot successfully written!");
-//                        Toast.makeText(getContext(), "New location added!", Toast.LENGTH_SHORT).show();
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.w("DB insert", "Error writing document", e);
-//                        Toast.makeText(getContext(), "Failed to add new location. Please try again!", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//        LocationListView fragment = new LocationListView();
-//        FragmentManager fragmentManager = getFragmentManager();
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.replace(R.id.content, fragment, "");
-//        fragmentTransaction.addToBackStack("location");
-//        fragmentTransaction.commit();
-//    }
-
     private void savePolygon() {
         if (polygonPoints.size() > 2) {
-            // Convert polygonPoints (LatLng) to a list of custom objects or use a Map
-            List<Map<String, Double>> polygonDataList = new ArrayList<>();
-            for (LatLng point : polygon.getPoints()) {
-                Map<String, Double> pointData = new HashMap<>();
-                pointData.put("latitude", point.latitude);
-                pointData.put("longitude", point.longitude);
-                polygonDataList.add(pointData);
-            }
-
-            Map<String, Object> location = new HashMap<>();
             TextInputLayout locationName = view.findViewById(R.id.Name);
             TextInputLayout locationAddress = view.findViewById(R.id.Address);
-            String address = String.valueOf(locationAddress.getEditText().getText());
-            location.put("name", String.valueOf(locationName.getEditText().getText()));
-            location.put("address", address);
-            location.put("polygon", polygonDataList);
+            LocationsModel location = new LocationsModel();
+            location.setPolygon(convertLatLngToPoint(polygonPoints));
+            location.setName(String.valueOf(locationName.getEditText().getText()));
+            location.setAddress(String.valueOf(locationAddress.getEditText().getText()));
 
-            db.collection("cities").document(address)
-                    .set(location)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("DB insert", "DocumentSnapshot successfully written!");
-                            Toast.makeText(getContext(), "New location added!", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w("DB insert", "Error writing document", e);
-                            Toast.makeText(getContext(), "Failed to add new location. Please try again!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            Call<String> call = apiService.addLocation(location);
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    System.out.println("response: "+response);
+                    if (response.isSuccessful()) {
+                        // Handle successful response
+                        Toast.makeText(getActivity(), "Location added successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Handle unsuccessful response
+                        Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    // Handle network errors
+                    System.out.println("error: "+t.getStackTrace());
+                }
+            });
             LocationListView fragment = new LocationListView();
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -229,6 +184,14 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
         }
     }
 
+
+    public static List<LocationsModel.Point> convertLatLngToPoint(List<LatLng> latLngList) {
+        List<LocationsModel.Point> pointList = new ArrayList<>();
+        for (LatLng latLng : latLngList) {
+            pointList.add(new LocationsModel.Point(latLng.latitude, latLng.longitude));
+        }
+        return pointList;
+    }
 
     private void drawDelaunayPolygon() {
         // Clear the existing polygon
