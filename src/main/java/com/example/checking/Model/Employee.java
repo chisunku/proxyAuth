@@ -9,6 +9,16 @@ public class Employee {
     String imageURL;
     String password;
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    String userId;
+
     public void setName(String name){
         this.name = name;
     }

@@ -72,12 +72,12 @@ public class FaceRecognition extends MLVideoHelperActivity implements FaceRecogn
         return faceRecognitionProcessor;
     }
 
-    public void setTestImage(Bitmap cropToBBox) {
-        if (cropToBBox == null) {
-            return;
-        }
-        runOnUiThread(() -> ((ImageView) findViewById(R.id.testImageView)).setImageBitmap(cropToBBox));
-    }
+//    public void setTestImage(Bitmap cropToBBox) {
+//        if (cropToBBox == null) {
+//            return;
+//        }
+//        runOnUiThread(() -> ((ImageView) findViewById(R.id.testImageView)).setImageBitmap(cropToBBox));
+//    }
 
     @Override
     public void onFaceDetected(Face face, Bitmap faceBitmap, float[] faceVector) {

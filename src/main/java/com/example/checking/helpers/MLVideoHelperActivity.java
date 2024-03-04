@@ -94,7 +94,7 @@ public abstract class MLVideoHelperActivity extends AppCompatActivity {
         previewView = findViewById(R.id.camera_source_preview);
         graphicOverlay = findViewById(R.id.graphic_overlay);
         outputTextView = findViewById(R.id.output_text_view);
-        addFaceButton = findViewById(R.id.button_add_face);
+//        addFaceButton = findViewById(R.id.button_add_face);
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(getApplicationContext());
 
@@ -240,7 +240,7 @@ public abstract class MLVideoHelperActivity extends AppCompatActivity {
     protected abstract VisionBaseProcessor setProcessor();
 
     public void makeAddFaceVisible() {
-        addFaceButton.setVisibility(View.VISIBLE);
+//        addFaceButton.setVisibility(View.VISIBLE);
     }
 
     public void onAddFaceClicked(View view) {

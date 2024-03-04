@@ -44,6 +44,6 @@ public interface APIService {
 
     //Auth employee
     @GET("/emailAuth")
-    Call<Boolean> emailAuth(@Query("email") String email, @Query("password") String password);
+    Call<Boolean> emailAuth(@Query("email") String email, @Query("password") String password, @Query("userId") String userId);
 }
 
