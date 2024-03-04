@@ -118,9 +118,9 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
                         for (Face face : faces) {
                             FaceGraphic faceGraphic = new FaceGraphic(graphicOverlay, face, false, width, height);
                             Log.d(TAG, "face found, id: " + face.getTrackingId());
-                            if (activity != null) {
-                                activity.setTestImage(cropToBBox(bitmap, face.getBoundingBox(), rotation));
-                            }
+//                            if (activity != null) {
+//                                activity.setTestImage(cropToBBox(bitmap, face.getBoundingBox(), rotation));
+//                            }
                             // now we have a face, so we can use that to analyse age and gender
                             Bitmap faceBitmap = cropToBBox(bitmap, face.getBoundingBox(), rotation);
 

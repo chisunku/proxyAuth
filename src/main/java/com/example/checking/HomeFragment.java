@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
@@ -86,14 +88,26 @@ public class HomeFragment extends Fragment {
 
         history = view.findViewById(R.id.attendanceHistory);
         checkin = view.findViewById(R.id.checkinBoxCardView);
+
+        final ActivityResultLauncher<Intent> faceRecognitionLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                        result -> {
+                            if (result.getResultCode() == Activity.RESULT_OK) {
+                                // Handle the result, for example, call checkLogIn
+                                checkLogIn(getView());
+                            }
+                        });
+
         checkin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), FaceRecognition.class);
-                startActivity(intent);
-                checkLogIn(view);
+                faceRecognitionLauncher.launch(intent);
+//                startActivity(intent);
+//                checkLogIn(view);
             }
         });
+
 
         checkOut = view.findViewById(R.id.checkoutBoxCardView);
         checkOut.setOnClickListener(new View.OnClickListener() {
@@ -177,6 +191,7 @@ public class HomeFragment extends Fragment {
     }
 
     public void checkLogIn(View view){
+        Log.d(TAG, "checkLogIn: in checkin");
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
 
         Call<LocationsModel> call = apiService.checkLocation(userLocation.latitude, userLocation.longitude);
@@ -233,6 +248,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFailure(Call<LocationsModel> call, Throwable t) {
+                Log.e(TAG, "checkin error"+t.getMessage()+" "+call.toString());
                 // Handle network errors
                 System.out.println("error: "+t.getStackTrace());
             }

@@ -1,6 +1,8 @@
 package com.example.checking;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,26 +12,42 @@ import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.UUID;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginWithEmail extends AppCompatActivity {
 
+    private SharedPreferences sharedPreferences;
+    String userId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_auth);
+        sharedPreferences = getApplicationContext().getSharedPreferences("proxyAuth", Context.MODE_PRIVATE);
+
+        if(sharedPreferences.getAll().isEmpty()){
+            userId = UUID.randomUUID().toString();
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("UUID", userId);
+            editor.apply();
+        }
+        else{
+            userId = sharedPreferences.getString("UUID", null);
+        }
+
         TextInputEditText email = findViewById(R.id.email);
         TextInputEditText password = findViewById(R.id.password);
-
         Button login = findViewById(R.id.Login);
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 APIService apiService = RetrofitClient.getClient().create(APIService.class);
-                Call<Boolean> call = apiService.emailAuth(email.getText().toString(), password.getText().toString());
+                Call<Boolean> call = apiService.emailAuth(email.getText().toString(), password.getText().toString(), userId);
                 System.out.println("call : ");
                 call.enqueue(new Callback<Boolean>() {
                     @Override
