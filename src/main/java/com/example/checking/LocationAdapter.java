@@ -16,15 +16,18 @@ import com.example.checking.Model.LocationsModel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.handler> {
 
     private final Context context;
-    private final ArrayList<LocationsModel> locationModelArrayList;
+    public List<LocationsModel> locationModelArrayList;
     FragmentManager fragmentManager;
 
+    public LocationAdapter(Context context){this.context = context;}
+
     // Constructor
-    public LocationAdapter(Context context, ArrayList<LocationsModel> locationModelArrayList, FragmentManager fragmentManager) {
+    public LocationAdapter(Context context, List<LocationsModel> locationModelArrayList, FragmentManager fragmentManager) {
         this.context = context;
         this.locationModelArrayList = locationModelArrayList;
         this.fragmentManager = fragmentManager;
@@ -41,6 +44,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.handle
     @Override
     public void onBindViewHolder(@NonNull LocationAdapter.handler holder, int position) {
         // to set data to textview and imageview of each card layout
+        System.out.println("Location adapter"+locationModelArrayList.size());
         LocationsModel model = locationModelArrayList.get(position);
         holder.locationAddress.setText(model.getAddress());
         holder.locationCity.setText("" + model.getName());

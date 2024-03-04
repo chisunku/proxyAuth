@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 
 import java.util.concurrent.Executor;
@@ -21,7 +22,7 @@ public class Biometric extends AppCompatActivity {
     BiometricPrompt biometricPrompt;
     BiometricPrompt.PromptInfo promptInfo;
 
-    ConstraintLayout mMainlayout;
+    CoordinatorLayout mMainlayout;
 
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);

@@ -8,33 +8,23 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.example.checking.Model.LocationsModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity{
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
-    private List<LatLng> polygonPoints = new ArrayList<>();
-
-    ArrayList<LocationsModel> dataList = new ArrayList<>();
+    final int REQUEST_CODE = 101;
 
     BottomNavigationView navigationView = null;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
-    private FirebaseFirestore db;
 
     private LatLng userLocation;
 
@@ -49,6 +39,17 @@ public class MainActivity extends AppCompatActivity{
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.content, fragment, "");
         fragmentTransaction.commit();
+//        // in the below line, we are checking for permissions
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+//            // if permissions are not provided we are requesting for permissions.
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_CODE);
+//        }
+//// in the below line, we are initializing our variables.
+//        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+//
+//        // in the below line, we are setting our imei to our text view.
+//        String imei = telephonyManager.getImei();
+//        Log.d("TAG", "onCreate: IMEI : "+imei);
     }
 
     private void enableMyLocation() {
@@ -95,6 +96,18 @@ public class MainActivity extends AppCompatActivity{
                 Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
             }
         }
+
+        if (requestCode == REQUEST_CODE) {
+            // in the below line, we are checking if permission is granted.
+            if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // if permissions are granted we are displaying below toast message.
+                Toast.makeText(this, "Permission granted.", Toast.LENGTH_SHORT).show();
+            } else {
+                // in the below line, we are displaying toast message
+                // if permissions are not granted.
+                Toast.makeText(this, "Permission denied.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
     private final BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {
         int itemId = item.getItemId();
@@ -113,6 +126,22 @@ public class MainActivity extends AppCompatActivity{
             fragmentTransaction.commit();
             return true;
         }
+        else if (itemId == R.id.leave) {
+            LocationListView fragment = new LocationListView();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.content, fragment, "");
+            fragmentTransaction.addToBackStack("location");
+            fragmentTransaction.commit();
+            return true;
+        }
+        else if (itemId == R.id.location) {
+            LocationListView fragment = new LocationListView();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.content, fragment, "");
+            fragmentTransaction.addToBackStack("location");
+            fragmentTransaction.commit();
+            return true;
+        }
         // It will help to replace the
         // one fragment to other.
 //        if (selectedFragment != null) {
@@ -120,9 +149,4 @@ public class MainActivity extends AppCompatActivity{
 //        }
         return false;
     };
-
-    public void updateBottomNavigation(int itemId) {
-        navigationView.setSelectedItemId(itemId);
-    }
-
 }
