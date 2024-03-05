@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/white"
     android:layout_height="match_parent">
 
     <ImageView
@@ -52,8 +53,9 @@
         android:layout_marginEnd="70dp"
         android:hint="Password"
         android:textColorHint="@color/grey"
-        app:boxStrokeColor="@color/black"
+        app:boxStrokeColor="@color/lightGrey"
         app:endIconMode="password_toggle"
+        app:endIconTint="@color/black"
         app:hintTextAppearance="@style/MyHintTextAppearance"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

@@ -1,6 +1,8 @@
 package com.example.checking.Model;
 
-public class Employee {
+import java.io.Serializable;
+
+public class Employee implements Serializable {
     String name;
     String email;
     LocationsModel location;

@@ -1,6 +1,8 @@
 package com.example.checking.Model;
 
-public class FaceModel {
+import java.io.Serializable;
+
+public class FaceModel implements Serializable {
     private String name;
     private float[] faceVector;
 

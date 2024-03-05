@@ -22,7 +22,7 @@
         android:icon="@mipmap/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.NoActionBar"
+        android:theme="@style/Theme.Checking"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 

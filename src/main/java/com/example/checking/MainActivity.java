@@ -1,13 +1,17 @@
 package com.example.checking;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.example.checking.Model.Employee;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -28,28 +32,25 @@ public class MainActivity extends AppCompatActivity{
 
     private LatLng userLocation;
 
+    Employee employee;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Intent intent = getIntent();
+        employee = (Employee) intent.getSerializableExtra("Employee");
+        Log.d("mainActivity", "onCreate: employee name : "+employee.getName());
         navigationView = findViewById(R.id.bottom_navigation);
         navigationView.setOnNavigationItemSelectedListener(navListener);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         HomeFragment fragment = new HomeFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("Employee", employee);
+        fragment.setArguments(bundle);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.content, fragment, "");
         fragmentTransaction.commit();
-//        // in the below line, we are checking for permissions
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-//            // if permissions are not provided we are requesting for permissions.
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_CODE);
-//        }
-//// in the below line, we are initializing our variables.
-//        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-//
-//        // in the below line, we are setting our imei to our text view.
-//        String imei = telephonyManager.getImei();
-//        Log.d("TAG", "onCreate: IMEI : "+imei);
     }
 
     private void enableMyLocation() {
@@ -113,6 +114,9 @@ public class MainActivity extends AppCompatActivity{
         int itemId = item.getItemId();
         if(itemId == R.id.home){
             HomeFragment fragment = new HomeFragment();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("Employee", employee);
+            fragment.setArguments(bundle);
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.content, fragment, "");
             fragmentTransaction.addToBackStack("home");

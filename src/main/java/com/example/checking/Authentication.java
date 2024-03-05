@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -18,13 +19,22 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.checking.Model.Employee;
+import com.example.checking.Service.APIService;
+import com.example.checking.Service.RetrofitClient;
+
 import java.util.concurrent.Executor;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Authentication extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
     BiometricPrompt biometricPrompt;
     BiometricPrompt.PromptInfo promptInfo;
+    String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +55,7 @@ public class Authentication extends AppCompatActivity {
             finish(); // Finish the current activity to prevent the user from navigating back
         } else {
             // Shared preferences are not empty, show buttons for email and biometric login
+            userId = sharedPreferences.getString("UUID", null);
             setupButtons();
             //fetch the shared preferences
 
@@ -106,8 +117,32 @@ public class Authentication extends AppCompatActivity {
                     public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
                         Toast.makeText(getApplicationContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intent);
+
+                        //get employee dets
+                        APIService apiService = RetrofitClient.getClient().create(APIService.class);
+                        Call<Employee> call = apiService.userIdAuth(userId);
+                        Log.d("TAG", "onAuthenticationSucceeded: call");
+                        call.enqueue(new Callback<Employee>() {
+                            @Override
+                            public void onResponse(Call<Employee> call, Response<Employee> response) {
+                                if(response.body()!=null){
+                                    Employee employee = response.body();
+                                    Log.d("TAG", "onResponse: emp name : "+employee.getName());
+                                    Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                                    i.putExtra("Employee", employee);
+                                    startActivity(i);
+                                }
+                                else{
+                                    Toast.makeText(Authentication.this, "Wrong email/ password entered.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Employee> call, Throwable t) {
+                                // Handle network errors
+                                System.out.println("error Auth with email: " + t.fillInStackTrace());
+                            }
+                        });
                     }
 
                     @Override

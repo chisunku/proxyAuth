@@ -3,20 +3,17 @@ package com.example.checking;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -24,9 +21,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.checking.Admin.RegisterEmployees;
 import com.example.checking.Model.Attendance;
+import com.example.checking.Model.Employee;
 import com.example.checking.Model.LocationsModel;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
@@ -50,42 +46,37 @@ public class HomeFragment extends Fragment {
     RecyclerView history;
     List<Attendance> dataHistory;
     AttendanceHistoryAdapter attendanceHistoryAdapter;
-
-    //checkin cardview
     CardView checkin;
-
     CardView checkOut;
-
-//    Button faceRec;
-
     Attendance attendanceModel;
-
     String TAG = "HomeFragment";
-
+    Employee employee;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, parent, false);
+
+        //get employee
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            employee = (Employee) arguments.getSerializable("Employee");
+            Log.d(TAG, "onCreateView: emp name in fragment : "+employee.getDesignation());
+        }
+        else{
+            Log.d(TAG, "onCreateView: arguments is null");
+        }
+
+        TextView name = view.findViewById(R.id.name);
+        name.setText(employee.getName());
+
+        TextView designation = view.findViewById(R.id.designation);
+        designation.setText(employee.getDesignation());
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
         requestLastLocation();
         Log.d(TAG, "onCreateView: userLocation : " + userLocation);
         fetchAttendanceHistory();
         attendanceHistory();
-//        new AttendanceHistory().execute();
-//        check();
-//        checkLogIn();
-//        new FetchDataAsyncTask().execute();
-//        coursesGV = view.findViewById(R.id.idGVcourses);
-
-//        faceRec = view.findViewById(R.id.faceRec);
-//        faceRec.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(getActivity(), FaceRecognition.class);
-//                startActivity(intent);
-//            }
-//        });
-
         history = view.findViewById(R.id.attendanceHistory);
         checkin = view.findViewById(R.id.checkinBoxCardView);
 
@@ -103,8 +94,6 @@ public class HomeFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), FaceRecognition.class);
                 faceRecognitionLauncher.launch(intent);
-//                startActivity(intent);
-//                checkLogIn(view);
             }
         });
 
@@ -121,7 +110,7 @@ public class HomeFragment extends Fragment {
 
     private void attendanceHistory(){
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
-        Call<List<Attendance>> call = apiService.getUserAttendance("chisunku@gmail.com");
+        Call<List<Attendance>> call = apiService.getUserAttendance(employee.getEmail());
         System.out.println("call : ");
         call.enqueue(new Callback<List<Attendance>>() {
             @Override
@@ -224,7 +213,7 @@ public class HomeFragment extends Fragment {
                     attendanceModel = new Attendance();
                     attendanceModel.setLocationsModel(res);
                     attendanceModel.setCheckInDate(date);
-                    attendanceModel.setEmail("chisunku@gmail.com");
+                    attendanceModel.setEmail(employee.getEmail());
                     attendanceModel.setDate(date);
 
                     Call<Attendance> saveCall = apiService.checkInUser(attendanceModel);
@@ -304,7 +293,7 @@ public class HomeFragment extends Fragment {
 
     public void fetchAttendanceHistory(){
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
-        Call<List<Attendance>> call = apiService.getUserAttendance("chisunku@gmail.com");
+        Call<List<Attendance>> call = apiService.getUserAttendance(employee.getEmail());
         System.out.println("call : ");
         call.enqueue(new Callback<List<Attendance>>() {
             @Override
@@ -313,18 +302,8 @@ public class HomeFragment extends Fragment {
                 if (response.isSuccessful()) {
                     dataHistory = response.body();
                     System.out.println("location list : "+dataHistory);
-//                    FragmentManager fragmentManager = getFragmentManager();
-//                    attendanceHistoryAdapter = new AttendanceHistoryAdapter(getContext(), dataHistory);
-//                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(),
-//                            LinearLayoutManager.VERTICAL, false);
-//
-//                    // in below two lines we are setting layoutmanager and adapter to our recycler view.
-//                    history.setLayoutManager(linearLayoutManager);
-//                    history.setAdapter(attendanceHistoryAdapter);
-                    // Handle the list of AttendanceModel objects
                 } else {
                     System.out.println("API has no response");
-                    // Handle unsuccessful response
                 }
             }
 
@@ -335,51 +314,4 @@ public class HomeFragment extends Fragment {
             }
         });
     }
-
-    public class AttendanceHistory extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            System.out.println("in attendance do in bg");
-//            try{
-//                //call updateCheckIn API
-//                APIService apiService = RetrofitClient.getClient().create(APIService.class);
-//                Call<List<AttendanceModel>> call = apiService.getUserAttendance("chisunku@gmail.com");
-//                System.out.println("call : ");
-//                call.enqueue(new Callback<List<AttendanceModel>>() {
-//                    @Override
-//                    public void onResponse(Call<List<AttendanceModel>> call, Response<List<AttendanceModel>> response) {
-//                        System.out.println("response: "+response);
-//                        if (response.isSuccessful()) {
-//                            dataHistory = response.body();
-//                            System.out.println("location list : "+dataHistory);
-//                            FragmentManager fragmentManager = getFragmentManager();
-//                            attendanceHistoryAdapter = new AttendanceHistoryAdapter(getContext(), dataHistory);
-//                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(),
-//                                    LinearLayoutManager.VERTICAL, false);
-//
-//                            // in below two lines we are setting layoutmanager and adapter to our recycler view.
-//                            history.setLayoutManager(linearLayoutManager);
-//                            history.setAdapter(attendanceHistoryAdapter);
-//                            // Handle the list of AttendanceModel objects
-//                        } else {
-//                            System.out.println("API has no response");
-//                            // Handle unsuccessful response
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<List<AttendanceModel>> call, Throwable t) {
-//                        // Handle network errors
-//                        System.out.println("error: " + t.fillInStackTrace());
-//                    }
-//                });
-//            }catch (Exception e){
-//                System.out.println("catch of attendance");
-//                e.printStackTrace();
-//            }
-
-            return null;
-        }
-    }
-
 }
