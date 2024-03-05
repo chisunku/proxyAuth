@@ -46,13 +46,14 @@
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="94dp"
                 android:layout_marginTop="15dp"
+                android:layout_marginEnd="94dp"
                 android:gravity="center"
                 android:text="John Adams"
                 android:textColor="@color/black"
                 android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.272"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -60,12 +61,14 @@
                 android:id="@+id/designation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="69dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="70dp"
                 android:gravity="center"
                 android:text="Software Engineer - Test"
                 android:textColor="@color/grey"
-                android:textSize="15dp"
+                android:textSize="18dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.253"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/name" />
 

@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.checking.Model.Employee;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
 import com.google.android.material.textfield.TextInputEditText;
@@ -47,13 +50,16 @@ public class LoginWithEmail extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 APIService apiService = RetrofitClient.getClient().create(APIService.class);
-                Call<Boolean> call = apiService.emailAuth(email.getText().toString(), password.getText().toString(), userId);
+                Call<Employee> call = apiService.emailAuth(email.getText().toString(), password.getText().toString(), userId);
                 System.out.println("call : ");
-                call.enqueue(new Callback<Boolean>() {
+                call.enqueue(new Callback<Employee>() {
                     @Override
-                    public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                        if(response.body()){
+                    public void onResponse(Call<Employee> call, Response<Employee> response) {
+                        if(response.body()!=null){
+                            Employee employee = response.body();
                             Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                            Log.d("TAG", "onResponse: emp name : "+employee.getName());
+                            i.putExtra("Employee", employee);
                             startActivity(i);
                         }
                         else{
@@ -62,7 +68,7 @@ public class LoginWithEmail extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Call<Boolean> call, Throwable t) {
+                    public void onFailure(Call<Employee> call, Throwable t) {
                         // Handle network errors
                         System.out.println("error Auth with email: " + t.fillInStackTrace());
                     }
