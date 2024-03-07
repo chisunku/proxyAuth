@@ -70,7 +70,7 @@ public abstract class MLVideoHelperActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video_helper_new);
 
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
-        Call<Employee> call = apiService.getEmployeeByEmail("abcd@proxyAuth.com");
+        Call<Employee> call = apiService.getEmployeeByEmail("chinmayi@proxyAuth.com");
         call.enqueue(new Callback<Employee>() {
             @Override
             public void onResponse(Call<Employee> call, Response<Employee> response) {

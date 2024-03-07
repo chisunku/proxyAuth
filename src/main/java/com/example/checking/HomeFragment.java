@@ -49,6 +49,8 @@ public class HomeFragment extends Fragment {
     CardView checkin;
     CardView checkOut;
     Attendance attendanceModel;
+
+    Attendance fetchAttnedance;
     String TAG = "HomeFragment";
     Employee employee;
 
@@ -65,6 +67,53 @@ public class HomeFragment extends Fragment {
         else{
             Log.d(TAG, "onCreateView: arguments is null");
         }
+
+        //fetch attendance
+        APIService apiService = RetrofitClient.getClient().create(APIService.class);
+        Call<Attendance> call = apiService.getLatestRecord(employee.getEmail());
+        System.out.println("call : ");
+        call.enqueue(new Callback<Attendance>() {
+            @Override
+            public void onResponse(Call<Attendance> call, Response<Attendance> response) {
+                System.out.println("response: "+response);
+                if (response.isSuccessful()) {
+                    fetchAttnedance = response.body();
+                    if(fetchAttnedance!=null){
+                        checkin.setEnabled(false);
+                        TextView time = view.findViewById(R.id.checkInDate);
+                        Instant instant = fetchAttnedance.getCheckInDate().toInstant();
+                        LocalDateTime localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                        time.setText(localDateTime.toLocalDate()+" @ "+localDateTime.getHour()+":"+String.format("%02d", localDateTime.getMinute()));
+                        TextView blockName = view.findViewById(R.id.checkInBoxName);
+                        blockName.setText("Checked In @ "+fetchAttnedance.getLocationsModel().getName());
+
+                        if(fetchAttnedance.getCheckOutDate()!=null){
+                            checkOut.setEnabled(false);
+                            time = view.findViewById(R.id.checkOutDate);
+                            instant = fetchAttnedance.getCheckOutDate().toInstant();
+                            localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                            time.setText(localDateTime.toLocalDate()+" @ "+localDateTime.getHour()+":"+String.format("%02d", localDateTime.getMinute()));
+                            blockName = view.findViewById(R.id.CheckOutBoxName);
+                            blockName.setText("Checked out");
+                        }
+                        else{
+                            checkOut.setEnabled(true);
+                        }
+                    }
+                    else{
+                        checkOut.setEnabled(false);
+                    }
+                } else {
+                    System.out.println("API has no response");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Attendance> call, Throwable t) {
+                // Handle network errors
+                System.out.println("error: " + t.fillInStackTrace());
+            }
+        });
 
         TextView name = view.findViewById(R.id.name);
         name.setText(employee.getName());
@@ -85,14 +134,16 @@ public class HomeFragment extends Fragment {
                         result -> {
                             if (result.getResultCode() == Activity.RESULT_OK) {
                                 // Handle the result, for example, call checkLogIn
+                                Log.d(TAG, "onCreateView: in after the face rec thing");
                                 checkLogIn(getView());
                             }
                         });
-
         checkin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "onClick: employee name in homefragment "+employee.getEmail());
                 Intent intent = new Intent(getActivity(), FaceRecognition.class);
+                intent.putExtra("Employee", employee);
                 faceRecognitionLauncher.launch(intent);
             }
         });
@@ -159,8 +210,8 @@ public class HomeFragment extends Fragment {
         // Convert Instant to Date
         Date date = Date.from(instant);
 
-        attendanceModel.setCheckOutDate(date);
-        Call<Attendance> saveCall = apiService.checkInUser(attendanceModel);
+        fetchAttnedance.setCheckOutDate(date);
+        Call<Attendance> saveCall = apiService.checkout(fetchAttnedance);
         saveCall.enqueue(new Callback<Attendance>(){
             @Override
             public void onResponse(Call<Attendance> call, Response<Attendance> response) {
@@ -215,7 +266,7 @@ public class HomeFragment extends Fragment {
                     attendanceModel.setCheckInDate(date);
                     attendanceModel.setEmail(employee.getEmail());
                     attendanceModel.setDate(date);
-
+                    fetchAttnedance = attendanceModel;
                     Call<Attendance> saveCall = apiService.checkInUser(attendanceModel);
                     saveCall.enqueue(new Callback<Attendance>(){
                         @Override
