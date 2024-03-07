@@ -44,14 +44,15 @@ public class FaceRecognition extends MLVideoHelperActivity implements FaceRecogn
     private Face face;
     private Bitmap faceBitmap;
     private float[] faceVector;
-
-    public static FaceModel empFace;
+    Employee employee;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         makeAddFaceVisible();
-
+        Intent intent = getIntent();
+        employee = (Employee) intent.getSerializableExtra("Employee");
+        Log.d("TAG", "onCreate: in face rec employee email : "+employee.getEmail());
+        super.onCreate(savedInstanceState);
     }
 
     //setting the pretrained tenserflow model
@@ -63,10 +64,14 @@ public class FaceRecognition extends MLVideoHelperActivity implements FaceRecogn
             e.printStackTrace();
         }
 
+        Log.d("TAG", "setProcessor: Face rec email : "+ employee.getEmail());
+
         faceRecognitionProcessor = new FaceRecognitionProcessor(
                 faceNetInterpreter,
                 graphicOverlay,
-                this
+                this,
+                employee,
+                super.empFace
         );
         faceRecognitionProcessor.activity = this;
         return faceRecognitionProcessor;

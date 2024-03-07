@@ -71,11 +71,17 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
 
     List<FaceModel> recognisedFaceList = new ArrayList();
 
+    Employee employee;
+
     public FaceRecognitionProcessor(Interpreter faceNetModelInterpreter,
                                     GraphicOverlay graphicOverlay,
-                                    FaceRecognitionCallback callback) {
+                                    FaceRecognitionCallback callback,
+                                    Employee employee,
+                                    FaceModel empFace) {
         this.callback = callback;
         this.graphicOverlay = graphicOverlay;
+        this.employee = employee;
+        this.empFace = empFace;
         // initialize processors
         this.faceNetModelInterpreter = faceNetModelInterpreter;
         faceNetImageProcessor = new ImageProcessor.Builder()
@@ -169,7 +175,7 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
         final Pair<String, Float>[] ret = new Pair[]{null};
         if(empFace == null) {
             APIService apiService = RetrofitClient.getClient().create(APIService.class);
-            Call<Employee> call = apiService.getEmployeeByEmail("abcd@proxyAuth.com");
+            Call<Employee> call = apiService.getEmployeeByEmail(employee.getEmail());
             call.enqueue(new Callback<Employee>() {
                 @Override
                 public void onResponse(Call<Employee> call, Response<Employee> response) {

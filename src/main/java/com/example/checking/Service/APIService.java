@@ -29,6 +29,9 @@ public interface APIService {
     @POST("/checkInUser")
     Call<Attendance> checkInUser(@Body Attendance attendanceModel);
 
+    @POST("/checkout")
+    Call<Attendance> checkout(@Body Attendance attendanceModel);
+
     //get attendance history
     @GET("/getUserAttendance")
     Call<List<Attendance>> getUserAttendance(@Query("email") String email);
@@ -48,5 +51,9 @@ public interface APIService {
 
     @GET("/userIdAuth")
     Call<Employee> userIdAuth (@Query("userId") String userId);
+
+//    getLatestRecord
+    @GET("/getLatestRecord")
+    Call<Attendance> getLatestRecord (@Query("email") String email);
 }
 
