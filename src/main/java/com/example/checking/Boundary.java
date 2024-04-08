@@ -5,16 +5,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
-import android.widget.ZoomControls;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.checking.Model.LocationsModel;
+import com.example.checking.Model.Location;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
 import com.google.android.gms.common.api.Status;
@@ -31,12 +30,14 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.triangulate.DelaunayTriangulationBuilder;
 import org.locationtech.jts.triangulate.quadedge.QuadEdgeSubdivision;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +53,8 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
     private Polygon polygon;
     APIService apiService = RetrofitClient.getClient().create(APIService.class);
     View view;
-
+    List<Location> dataList;
+    LocationAdapter productAdapter;
     private void initializePlaces() {
         if (!Places.isInitialized()) {
             Places.initialize(getContext(), "AIzaSyAHNqB-5OeXeVss95CwnVO7IFjKbJe7mzE");
@@ -148,7 +150,7 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
         if (polygonPoints.size() > 2) {
             TextInputLayout locationName = view.findViewById(R.id.Name);
             TextInputLayout locationAddress = view.findViewById(R.id.Address);
-            LocationsModel location = new LocationsModel();
+            Location location = new Location();
             location.setPolygon(convertLatLngToPoint(polygonPoints));
             location.setName(String.valueOf(locationName.getEditText().getText()));
             location.setAddress(String.valueOf(locationAddress.getEditText().getText()));
@@ -161,6 +163,20 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
                     if (response.isSuccessful()) {
                         // Handle successful response
                         Toast.makeText(getActivity(), "Location added successfully", Toast.LENGTH_SHORT).show();
+                        dataList.add(location);
+                        Log.d("TAG", "onResponse: datalist length : "+dataList.size());
+                        productAdapter.notifyItemInserted(dataList.size());
+                        LocationListView fragment = new LocationListView();
+
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("dataList", (Serializable) dataList);
+                        fragment.setArguments(bundle);
+
+                        FragmentManager fragmentManager = getFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.replace(R.id.content, fragment, "");
+                        fragmentTransaction.addToBackStack("location");
+                        fragmentTransaction.commit();
                     } else {
                         // Handle unsuccessful response
                         Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
@@ -173,22 +189,16 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
                     System.out.println("error: "+t.getStackTrace());
                 }
             });
-            LocationListView fragment = new LocationListView();
-            FragmentManager fragmentManager = getFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.content, fragment, "");
-            fragmentTransaction.addToBackStack("location");
-            fragmentTransaction.commit();
         } else {
             Toast.makeText(getContext(), "Please draw a valid polygon on the map before saving.", Toast.LENGTH_SHORT).show();
         }
     }
 
 
-    public static List<LocationsModel.Point> convertLatLngToPoint(List<LatLng> latLngList) {
-        List<LocationsModel.Point> pointList = new ArrayList<>();
+    public static List<Location.Point> convertLatLngToPoint(List<LatLng> latLngList) {
+        List<Location.Point> pointList = new ArrayList<>();
         for (LatLng latLng : latLngList) {
-            pointList.add(new LocationsModel.Point(latLng.latitude, latLng.longitude));
+            pointList.add(new Location.Point(latLng.latitude, latLng.longitude));
         }
         return pointList;
     }
@@ -234,5 +244,10 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
 
             polygon = mMap.addPolygon(polygonOptions);
         }
+    }
+
+    public void fetchAdapeter(LocationAdapter adapter, List<Location> dataList) {
+        this.productAdapter = adapter;
+        this.dataList = dataList;
     }
 }

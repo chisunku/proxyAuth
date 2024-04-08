@@ -47,7 +47,7 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<AttendanceHis
         System.out.println("in adapter binder holder");
         Attendance model = locationModelArrayList.get(position);
 
-        Log.d("atthistory", "onBindViewHolder atthistory: "+model);
+//        Log.d("atthistory", "onBindViewHolder atthistory: "+model+" "+model.getLocationsModel().getName());
 
         // Create a SimpleDateFormat with the desired format
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
@@ -69,6 +69,7 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<AttendanceHis
 
     @Override
     public int getItemCount() {
+        Log.d("attendance history adapter", "getItemCount: item count called : "+locationModelArrayList.size());
         return locationModelArrayList.size();
     }
 

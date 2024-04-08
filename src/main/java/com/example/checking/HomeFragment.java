@@ -3,11 +3,14 @@ package com.example.checking;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,12 +26,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.checking.Model.Attendance;
 import com.example.checking.Model.Employee;
-import com.example.checking.Model.LocationsModel;
+import com.example.checking.Model.Location;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.squareup.picasso.Picasso;
+
+import java.io.InputStream;
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -53,31 +60,39 @@ public class HomeFragment extends Fragment {
     Attendance fetchAttnedance;
     String TAG = "HomeFragment";
     Employee employee;
+    private ProgressBar loadingProgressBar;
+
+    ImageView profile_image;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, parent, false);
-
+        loadingProgressBar = view.findViewById(R.id.attendanceLoading);
+        Log.d(TAG, "onCreateView: homefragment");
         //get employee
         Bundle arguments = getArguments();
         if (arguments != null) {
             employee = (Employee) arguments.getSerializable("Employee");
-            Log.d(TAG, "onCreateView: emp name in fragment : "+employee.getDesignation());
+            if(employee == null)
+                Log.d(TAG, "onCreateView: yes emp is null");
+            Log.d(TAG, "onCreateView: emp name in fragment : "+employee.getImageURL());
         }
         else{
             Log.d(TAG, "onCreateView: arguments is null");
+            getActivity().getFragmentManager().popBackStack();
         }
 
         //fetch attendance
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
         Call<Attendance> call = apiService.getLatestRecord(employee.getEmail());
-        System.out.println("call : ");
+        Log.d(TAG, "onCreateView: call fetch latest attendance: ");
         call.enqueue(new Callback<Attendance>() {
             @Override
             public void onResponse(Call<Attendance> call, Response<Attendance> response) {
-                System.out.println("response: "+response);
+                System.out.println("response of fetch latest : "+response);
                 if (response.isSuccessful()) {
                     fetchAttnedance = response.body();
+                    Log.d(TAG, "onResponse: latest attendance : "+fetchAttnedance.getEmail()+" "+fetchAttnedance.getLocationsModel().getName());
                     if(fetchAttnedance!=null){
                         checkin.setEnabled(false);
                         TextView time = view.findViewById(R.id.checkInDate);
@@ -111,10 +126,19 @@ public class HomeFragment extends Fragment {
             @Override
             public void onFailure(Call<Attendance> call, Throwable t) {
                 // Handle network errors
-                System.out.println("error: " + t.fillInStackTrace());
+                System.out.println("error in fetch latest attendance: " + call.toString()+" :: "+t.fillInStackTrace()+" "+t.getStackTrace()+" "+t.getMessage());
             }
         });
 
+//        Drawable d = LoadImageFromWebOperations(employee.getImageURL());
+//        Log.d(TAG, "onCreateView: drawable " + d.toString());
+//        profile_image.setImageDrawable(d);
+
+        //image from url
+        profile_image = view.findViewById(R.id.profile_image);
+        Picasso.get()
+                .load(employee.getImageURL())
+                .into(profile_image);
         TextView name = view.findViewById(R.id.name);
         name.setText(employee.getName());
 
@@ -159,6 +183,23 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    public static Drawable LoadImageFromWebOperations(String url) {
+        System.out.println("image url in convert to drawable : "+url);
+        try {
+            InputStream is = (InputStream) new URL(url).getContent();
+            Drawable d = Drawable.createFromStream(is, "src name");
+            if(d == null)
+                Log.d("TAG", "LoadImageFromWebOperations: drawable is null");
+            else{
+                Log.d("TAG", "LoadImageFromWebOperations: drawable : "+d.toString());
+            }
+            return d;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private void attendanceHistory(){
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
         Call<List<Attendance>> call = apiService.getUserAttendance(employee.getEmail());
@@ -166,6 +207,7 @@ public class HomeFragment extends Fragment {
         call.enqueue(new Callback<List<Attendance>>() {
             @Override
             public void onResponse(Call<List<Attendance>> call, Response<List<Attendance>> response) {
+                loadingProgressBar.setVisibility(View.GONE);
                 System.out.println("response: "+response);
                 if (response.isSuccessful()) {
                     dataHistory = response.body();
@@ -221,6 +263,8 @@ public class HomeFragment extends Fragment {
                 time.setText(currentDateTime.toLocalDate()+" @ "+currentDateTime.getHour()+":"+currentDateTime.getMinute());
                 TextView boxName = view.findViewById(R.id.CheckOutBoxName);
                 boxName.setText("Checked Out");
+                dataHistory.get(0).setCheckOutDate(fetchAttnedance.getCheckOutDate());
+                attendanceHistoryAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -234,12 +278,12 @@ public class HomeFragment extends Fragment {
         Log.d(TAG, "checkLogIn: in checkin");
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
 
-        Call<LocationsModel> call = apiService.checkLocation(userLocation.latitude, userLocation.longitude);
-        call.enqueue(new Callback<LocationsModel>() {
+        Call<Location> call = apiService.checkLocation(userLocation.latitude, userLocation.longitude);
+        call.enqueue(new Callback<Location>() {
             @Override
-            public void onResponse(Call<LocationsModel> call, Response<LocationsModel> response) {
+            public void onResponse(Call<Location> call, Response<Location> response) {
                 if (response.isSuccessful()) {
-                    LocationsModel res = response.body();
+                    Location res = response.body();
                     System.out.println("Attendance marked ? "+ res.getName());
                     // Handle the list of AttendanceModel objects
                     Toast.makeText(getContext(), "User Checked In @ "+res.getName(), Toast.LENGTH_SHORT).show();
@@ -265,13 +309,18 @@ public class HomeFragment extends Fragment {
                     attendanceModel.setLocationsModel(res);
                     attendanceModel.setCheckInDate(date);
                     attendanceModel.setEmail(employee.getEmail());
-                    attendanceModel.setDate(date);
+//                    attendanceModel.setDate(date);
                     fetchAttnedance = attendanceModel;
+                    Log.d(TAG, "onResponse: attendance location : "+attendanceModel.getLocationsModel().getName());
                     Call<Attendance> saveCall = apiService.checkInUser(attendanceModel);
                     saveCall.enqueue(new Callback<Attendance>(){
                         @Override
                         public void onResponse(Call<Attendance> call, Response<Attendance> response) {
-                            System.out.println("response : "+response);
+                            System.out.println("response checkin user : "+response+" msg : "+response.message()+" "+response.body());
+                            Log.d(TAG, "onResponse: dataset size: "+dataHistory.size());
+                            dataHistory.add(0, fetchAttnedance);
+                            Log.d(TAG, "onResponse: dataset size after : "+dataHistory.size());
+                            attendanceHistoryAdapter.notifyDataSetChanged();
                         }
 
                         @Override
@@ -287,7 +336,7 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<LocationsModel> call, Throwable t) {
+            public void onFailure(Call<Location> call, Throwable t) {
                 Log.e(TAG, "checkin error"+t.getMessage()+" "+call.toString());
                 // Handle network errors
                 System.out.println("error: "+t.getStackTrace());
@@ -313,6 +362,7 @@ public class HomeFragment extends Fragment {
                     });
         } else {
             ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            Log.d(TAG, "requestLastLocation: request not granted!!!");
         }
     }
 

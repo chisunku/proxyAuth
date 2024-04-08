@@ -19,8 +19,8 @@
         android:icon="@drawable/leave_foreground"
         android:title="Leave"/>
     <item
-        android:id="@+id/location1"
+        android:id="@+id/profile"
         android:enabled="true"
-        android:icon="@drawable/location"
-        android:title="Locations"/>
+        android:icon="@drawable/person_foreground"
+        android:title="Profile"/>
 </menu>

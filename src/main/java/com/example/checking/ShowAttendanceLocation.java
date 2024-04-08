@@ -10,7 +10,7 @@ package com.example.checking;
         import androidx.fragment.app.Fragment;
 
         import com.example.checking.Model.Attendance;
-        import com.example.checking.Model.LocationsModel;
+        import com.example.checking.Model.Location;
         import com.google.android.gms.maps.CameraUpdateFactory;
         import com.google.android.gms.maps.GoogleMap;
         import com.google.android.gms.maps.OnMapReadyCallback;
@@ -25,11 +25,11 @@ package com.example.checking;
 
 public class ShowAttendanceLocation extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
-    List<LocationsModel.Point> polygon;
+    List<Location.Point> polygon;
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_show_attendance_location, parent, false);
         Bundle args = getArguments();
-        LocationsModel loc = (LocationsModel) args.getSerializable("loc");
+        Location loc = (Location) args.getSerializable("loc");
         Attendance att = (Attendance) args.getSerializable("attendance");
         System.out.println("Name: "+loc.getName());
         polygon = loc.getPolygon();
@@ -60,7 +60,7 @@ public class ShowAttendanceLocation extends Fragment implements OnMapReadyCallba
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getPolygonBounds(polygon), 50));
     }
 
-    private void drawPolygon(List<LocationsModel.Point> polygonPoints) {
+    private void drawPolygon(List<Location.Point> polygonPoints) {
         if (polygonPoints.size() >= 3) {
             List<LatLng> latLngs = sortPointsClockwise(polygonPoints);
 
@@ -73,10 +73,10 @@ public class ShowAttendanceLocation extends Fragment implements OnMapReadyCallba
         }
     }
 
-    private List<LatLng> sortPointsClockwise(List<LocationsModel.Point> points) {
+    private List<LatLng> sortPointsClockwise(List<Location.Point> points) {
         // Calculate the centroid of the points
         double cx = 0, cy = 0;
-        for (LocationsModel.Point point : points) {
+        for (Location.Point point : points) {
             cx += point.getLatitude();
             cy += point.getLongitude();
         }
@@ -94,7 +94,7 @@ public class ShowAttendanceLocation extends Fragment implements OnMapReadyCallba
 
         // Convert to LatLng and return
         List<LatLng> sortedLatLngs = new ArrayList<>();
-        for (LocationsModel.Point point : points) {
+        for (Location.Point point : points) {
             sortedLatLngs.add(new LatLng(point.getLatitude(), point.getLongitude()));
         }
         return sortedLatLngs;
@@ -102,9 +102,9 @@ public class ShowAttendanceLocation extends Fragment implements OnMapReadyCallba
 
 
 
-    private LatLngBounds getPolygonBounds(List<LocationsModel.Point> polygonPoints) {
+    private LatLngBounds getPolygonBounds(List<Location.Point> polygonPoints) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (LocationsModel.Point point : polygonPoints) {
+        for (Location.Point point : polygonPoints) {
             builder.include(new LatLng(point.getLatitude(), point.getLongitude()));
         }
         return builder.build();

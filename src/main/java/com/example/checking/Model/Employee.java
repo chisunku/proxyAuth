@@ -5,11 +5,21 @@ import java.io.Serializable;
 public class Employee implements Serializable {
     String name;
     String email;
-    LocationsModel location;
+    Location location;
     FaceModel face;
     String designation;
     String imageURL;
     String password;
+    String userId;
+    String address;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     public String getUserId() {
         return userId;
@@ -18,8 +28,6 @@ public class Employee implements Serializable {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-
-    String userId;
 
     public void setName(String name){
         this.name = name;
@@ -33,7 +41,7 @@ public class Employee implements Serializable {
         this.face = face;
     }
 
-    public void setLocationsModel(LocationsModel location) {
+    public void setLocationsModel(Location location) {
         this.location = location;
     }
 
@@ -69,7 +77,7 @@ public class Employee implements Serializable {
         return face;
     }
 
-    public LocationsModel getLocationsModel() {
+    public Location getLocationsModel() {
         return location;
     }
 

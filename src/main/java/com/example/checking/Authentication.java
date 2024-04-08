@@ -35,27 +35,44 @@ public class Authentication extends AppCompatActivity {
     BiometricPrompt biometricPrompt;
     BiometricPrompt.PromptInfo promptInfo;
     String userId;
+
+    APIService apiService = RetrofitClient.getClient().create(APIService.class);
+    Employee employee;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
-
+        employee = getIntent().getParcelableExtra("employee");
+        Log.d("TAG", "onCreate: authenticate file");
         //check if shared preference is empty
         //if yes then show the login page
         //else show 2 buttons like discover app where the user can login with email or biometric
         // Retrieve SharedPreferences
         sharedPreferences = getApplicationContext().getSharedPreferences("proxyAuth", Context.MODE_PRIVATE);
-
+//        Call<String> call = apiService.test();
+//        call.enqueue(new Callback<String>() {
+//            @Override
+//            public void onResponse(Call<String> call, Response<String> response) {
+//                Log.d("TAG", "onResponse: called!!");
+//            }
+//
+//            @Override
+//            public void onFailure(Call<String> call, Throwable t) {
+//                Log.d("TAG", "onResponse: failed!! "+t.getStackTrace()+" "+t.getMessage()+" "+t.fillInStackTrace());
+//            }
+//        });
         // Check if SharedPreferences is empty
         if (isSharedPreferencesEmpty()) {
+            Log.d("TAG", "onCreate: shared pref empty");
             // Shared preferences are empty, show login page
             // For simplicity, let's start a LoginActivity (replace with your login activity)
-            Intent loginIntent = new Intent(this, LoginWithEmail.class);
+            Intent loginIntent = new Intent(this, Registration.class);
             startActivity(loginIntent);
             finish(); // Finish the current activity to prevent the user from navigating back
         } else {
             // Shared preferences are not empty, show buttons for email and biometric login
             userId = sharedPreferences.getString("UUID", null);
+            System.out.println("shared pref: "+userId);
             setupButtons();
             //fetch the shared preferences
 
