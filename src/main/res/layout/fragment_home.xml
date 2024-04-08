@@ -4,298 +4,320 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white">
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
-        android:layout_marginTop="1dp"
-        android:orientation="horizontal"
-        android:padding="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            app:cardCornerRadius="56dp">
-
-            <ImageView
-                android:id="@+id/profile_image"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/img" />
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="94dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginEnd="94dp"
-                android:gravity="center"
-                android:text="John Adams"
-                android:textColor="@color/black"
-                android:textSize="20dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/designation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="69dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="70dp"
-                android:gravity="center"
-                android:text="Software Engineer - Test"
-                android:textColor="@color/grey"
-                android:textSize="18dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/name" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="154dp"
-        android:layout_height="21dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="241dp"
-        android:text="Attendance Records"
-        android:textColor="@color/black"
-        app:layout_constraintBottom_toTopOf="@+id/checkInBoxes"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
-
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/checkInBoxes"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/textView1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
+        android:layout_height="match_parent"
+        android:background="@color/white">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/checkinBoxCardView"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            app:cardBackgroundColor="#C3DBED"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/checkoutBoxCardView"
+            android:layout_marginStart="1dp"
+            android:layout_marginEnd="1dp"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/textView"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/checkinBox"
-                android:layout_width="170dp"
-                android:layout_height="135dp"
-                android:background="#C3DBED"
-                app:layout_constraintEnd_toStartOf="@+id/checkOutBox"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                app:cardCornerRadius="56dp">
 
                 <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="39dp"
-                    android:layout_height="37dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
-                    android:src="@drawable/checkin"
+                    android:id="@+id/profile_image"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/profile_pic" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="94dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="94dp"
+                    android:gravity="center"
+                    android:text="John Adams"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/checkInBoxName"
-                    android:layout_width="96dp"
+                    android:id="@+id/designation"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="9dp"
-                    android:gravity="left"
-                    android:text="Check In"
-                    android:textColor="@color/black"
-                    android:textSize="19dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageView"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/checkInTime"
-                    android:layout_width="107dp"
-                    android:layout_height="21dp"
-                    android:layout_marginStart="29dp"
-                    android:layout_marginTop="19dp"
-                    android:layout_marginEnd="34dp"
-                    android:text="Time"
-                    android:textColor="@color/black"
+                    android:layout_marginStart="69dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="70dp"
+                    android:gravity="center"
+                    android:text="Software Engineer - Test"
+                    android:textColor="@color/grey"
                     android:textSize="18dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/imageView" />
-
-                <TextView
-                    android:id="@+id/checkInDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="27dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="27dp"
-                    android:text="Not checked in"
-                    android:textColor="@color/grey"
-                    android:textSize="15dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/checkInTime" />
+                    app:layout_constraintTop_toBottomOf="@+id/name" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/checkoutBoxCardView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="10dp"
-            app:cardBackgroundColor="#C3DBED"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="154dp"
+            android:layout_height="21dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="241dp"
+            android:text="Attendance Records"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toTopOf="@+id/checkInBoxes"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/checkinBoxCardView"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/checkOutBox"
-                android:layout_width="170dp"
-                android:layout_height="135dp"
-                android:background="#C3DBED"
-                app:layout_constraintEnd_toStartOf="@+id/checkOutBox"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/checkInBoxes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/attHistory"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/checkinBoxCardView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                app:cardBackgroundColor="#C3DBED"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/checkoutBoxCardView"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-
-                <ImageView
-                    android:id="@+id/imageView2"
-                    android:layout_width="39dp"
-                    android:layout_height="37dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
-                    android:src="@drawable/checkout"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/checkinBox"
+                    android:layout_width="170dp"
+                    android:layout_height="135dp"
+                    android:background="#C3DBED"
+                    app:layout_constraintEnd_toStartOf="@+id/checkOutBox"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    android:id="@+id/CheckOutBoxName"
-                    android:layout_width="96dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="9dp"
-                    android:gravity="left"
-                    android:text="Check Out"
-                    android:textColor="@color/black"
-                    android:textSize="19dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageView2"
-                    app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/checkOutTime"
-                    android:layout_width="113dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="29dp"
-                    android:layout_marginTop="19dp"
-                    android:layout_marginEnd="28dp"
-                    android:text="Time"
-                    android:textColor="@color/black"
-                    android:textSize="18dp"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="39dp"
+                        android:layout_height="37dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="10dp"
+                        android:src="@drawable/checkin"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/checkInBoxName"
+                        android:layout_width="96dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="9dp"
+                        android:gravity="left"
+                        android:text="Check In"
+                        android:textColor="@color/black"
+                        android:textSize="19dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/imageView"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/checkInTime"
+                        android:layout_width="107dp"
+                        android:layout_height="21dp"
+                        android:layout_marginStart="29dp"
+                        android:layout_marginTop="19dp"
+                        android:layout_marginEnd="34dp"
+                        android:text="Time"
+                        android:textColor="@color/black"
+                        android:textSize="18dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+                    <TextView
+                        android:id="@+id/checkInDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="27dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="27dp"
+                        android:text="Not checked in"
+                        android:textColor="@color/grey"
+                        android:textSize="15dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/checkInTime" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/checkoutBoxCardView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp"
+                app:cardBackgroundColor="#C3DBED"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/checkinBoxCardView"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/checkOutBox"
+                    android:layout_width="170dp"
+                    android:layout_height="135dp"
+                    android:background="#C3DBED"
+                    app:layout_constraintEnd_toStartOf="@+id/checkOutBox"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/imageView2" />
-
-                <TextView
-                    android:id="@+id/checkOutDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="36dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="36dp"
-                    android:text="Not checked out"
-                    android:textColor="@color/grey"
-                    android:textSize="15dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/checkOutTime" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+                    app:layout_constraintTop_toTopOf="parent">
 
 
+                    <ImageView
+                        android:id="@+id/imageView2"
+                        android:layout_width="39dp"
+                        android:layout_height="37dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="10dp"
+                        android:src="@drawable/checkout"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/CheckOutBoxName"
+                        android:layout_width="96dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="9dp"
+                        android:gravity="left"
+                        android:text="Check Out"
+                        android:textColor="@color/black"
+                        android:textSize="19dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/imageView2"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/checkOutTime"
+                        android:layout_width="113dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="29dp"
+                        android:layout_marginTop="19dp"
+                        android:layout_marginEnd="28dp"
+                        android:text="Time"
+                        android:textColor="@color/black"
+                        android:textSize="18dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+
+                    <TextView
+                        android:id="@+id/checkOutDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="36dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="36dp"
+                        android:text="Not checked out"
+                        android:textColor="@color/grey"
+                        android:textSize="15dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/checkOutTime" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/attHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkInBoxes">
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="154dp"
+                android:layout_height="21dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="241dp"
+                android:layout_marginBottom="4dp"
+                android:text="Attendance History"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toTopOf="@+id/attendanceHistory"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/checkInBoxes" />
+
+            <!-- ProgressBar -->
+            <ProgressBar
+                android:id="@+id/attendanceLoading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/blue_dark"
+                android:theme="@style/Theme.Checking"
+                android:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/attendanceHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:horizontalSpacing="6dp"
+                android:numColumns="2"
+                android:padding="10dp"
+                android:paddingTop="20dp"
+                android:verticalSpacing="6dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView1"
+                app:layout_goneMarginBottom="10px" />
+
+        </LinearLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="154dp"
-        android:layout_height="21dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="241dp"
-        android:layout_marginBottom="4dp"
-        android:text="Attendance History"
-        android:textColor="@color/black"
-        app:layout_constraintBottom_toTopOf="@+id/attendanceHistory"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/checkInBoxes" />
-
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/attendanceHistory"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:horizontalSpacing="6dp"
-        android:numColumns="2"
-        android:padding="10dp"
-        android:paddingTop="20dp"
-        android:verticalSpacing="6dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView1"
-        app:layout_goneMarginBottom="10px" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

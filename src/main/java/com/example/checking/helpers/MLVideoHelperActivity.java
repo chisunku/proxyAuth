@@ -46,59 +46,48 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.http.Multipart;
 
 public abstract class MLVideoHelperActivity extends AppCompatActivity {
 
     private static final int REQUEST_CAMERA = 1001;
     protected PreviewView previewView;
     protected GraphicOverlay graphicOverlay;
-    private TextView outputTextView;
-    private ExtendedFloatingActionButton addFaceButton;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private Executor executor = Executors.newSingleThreadExecutor();
 
     private VisionBaseProcessor processor;
     private ImageAnalysis imageAnalysis;
     public FaceModel empFace;
+    Employee employee;
+    Boolean setText, setButton;
+    ExtendedFloatingActionButton addFace;
+    TextView output_text_view;
+    MultipartBody.Part body;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_helper_new);
 
-        APIService apiService = RetrofitClient.getClient().create(APIService.class);
-        Call<Employee> call = apiService.getEmployeeByEmail("chinmayi@proxyAuth.com");
-        call.enqueue(new Callback<Employee>() {
-            @Override
-            public void onResponse(Call<Employee> call, Response<Employee> response) {
-                System.out.println("response: "+response);
-                if (response.isSuccessful()) {
-                    empFace = response.body().getFace();
-                    setProcessor();
-                    Log.d("faceRec API success", "success face got : "+empFace.getName());
-                } else {
-                    Log.d("faceRec API call", "API call to get emp face has no response");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Employee> call, Throwable t) {
-                // Handle network errors
-                Log.d("Face rec ", "Get face API error: " + t.fillInStackTrace());
-            }
-        });
+        empFace = employee.getFace();
 
         previewView = findViewById(R.id.camera_source_preview);
         graphicOverlay = findViewById(R.id.graphic_overlay);
-        outputTextView = findViewById(R.id.output_text_view);
-//        addFaceButton = findViewById(R.id.button_add_face);
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(getApplicationContext());
 
         processor = setProcessor();
+        addFace = findViewById(R.id.button_add_face);
+        if(setButton)
+            addFace.setVisibility(View.VISIBLE);
+        output_text_view = findViewById(R.id.output_text_view);
+        if(setText)
+            output_text_view.setVisibility(View.VISIBLE);
 
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
@@ -106,6 +95,8 @@ public abstract class MLVideoHelperActivity extends AppCompatActivity {
             initSource();
         }
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -124,10 +115,6 @@ public abstract class MLVideoHelperActivity extends AppCompatActivity {
         }
     }
 
-    protected void setOutputText(String text) {
-        outputTextView.setText(text);
-    }
-
     private void initSource() {
 
         cameraProviderFuture.addListener(() -> {
@@ -135,8 +122,7 @@ public abstract class MLVideoHelperActivity extends AppCompatActivity {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindPreview(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
-                // No errors need to be handled for this Future.
-                // This should never be reached.
+                e.printStackTrace();
             }
         }, ContextCompat.getMainExecutor(getApplicationContext()));
     }
@@ -161,11 +147,6 @@ public abstract class MLVideoHelperActivity extends AppCompatActivity {
         cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview);
     }
 
-    /**
-     * The face detector provides face bounds whose coordinates, width and height depend on the
-     * preview's width and height, which is guaranteed to be available after the preview starts
-     * streaming.
-     */
     private void setFaceDetector(int lensFacing) {
         previewView.getPreviewStreamState().observe(this, new Observer<StreamState>() {
             @Override
@@ -243,7 +224,15 @@ public abstract class MLVideoHelperActivity extends AppCompatActivity {
 //        addFaceButton.setVisibility(View.VISIBLE);
     }
 
+    //write code to save emp to DB
     public void onAddFaceClicked(View view) {
 
+    }
+
+    public void setData(Employee employee, MultipartBody.Part body, Boolean setText, Boolean setButton){
+        this.employee = employee;
+        this.body = body;
+        this.setText = setText;
+        this.setButton = setButton;
     }
 }

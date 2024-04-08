@@ -48,7 +48,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="#70ACD8"
-        app:layout_anchor="@id/bottomBar" />
+        app:layout_anchor="@id/bottomBar"
+        app:layout_anchorGravity="center"/>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

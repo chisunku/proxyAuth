@@ -32,15 +32,15 @@ public class LoginWithEmail extends AppCompatActivity {
         setContentView(R.layout.activity_email_auth);
         sharedPreferences = getApplicationContext().getSharedPreferences("proxyAuth", Context.MODE_PRIVATE);
 
-        if(sharedPreferences.getAll().isEmpty()){
-            userId = UUID.randomUUID().toString();
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("UUID", userId);
-            editor.apply();
-        }
-        else{
+//        if(sharedPreferences.getAll().isEmpty()){
+//            userId = UUID.randomUUID().toString();
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            editor.putString("UUID", userId);
+//            editor.apply();
+//        }
+//        else{
             userId = sharedPreferences.getString("UUID", null);
-        }
+//        }
 
         TextInputEditText email = findViewById(R.id.email);
         TextInputEditText password = findViewById(R.id.password);

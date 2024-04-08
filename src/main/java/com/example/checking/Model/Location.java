@@ -1,22 +1,13 @@
 package com.example.checking.Model;
-
 import java.io.Serializable;
 import java.util.List;
 
-public class LocationsModel implements Serializable {
+public class Location implements Serializable {
+
+    private String id;
     private String address;
     private String name;
     private List<Point> polygon;
-
-    // Required default constructor for Firestore
-    public LocationsModel() {
-    }
-
-    public LocationsModel(String address, String name, List<Point> polygon) {
-        this.address = address;
-        this.name = name;
-        this.polygon = polygon;
-    }
 
     public String getAddress() {
         return address;
@@ -41,14 +32,17 @@ public class LocationsModel implements Serializable {
     public void setPolygon(List<Point> polygon) {
         this.polygon = polygon;
     }
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public static class Point {
         private double latitude;
         private double longitude;
-
-        public Point() {
-            // Required default constructor for Firestore
-        }
 
         public Point(double latitude, double longitude) {
             this.latitude = latitude;

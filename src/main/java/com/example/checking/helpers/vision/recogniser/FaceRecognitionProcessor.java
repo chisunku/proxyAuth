@@ -1,5 +1,11 @@
 package com.example.checking.helpers.vision.recogniser;
 
+import static androidx.camera.core.impl.utils.ContextUtil.getApplicationContext;
+import static androidx.core.content.ContextCompat.startActivity;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -13,8 +19,12 @@ import androidx.annotation.OptIn;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 
+import com.example.checking.Authentication;
+import com.example.checking.MainActivity;
+import com.example.checking.Model.EmpRegistration;
 import com.example.checking.Model.Employee;
 import com.example.checking.Model.FaceModel;
+import com.example.checking.RegisterFace;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
 import com.example.checking.helpers.vision.FaceGraphic;
@@ -24,6 +34,7 @@ import com.example.checking.FaceRecognition;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
@@ -40,7 +51,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -49,6 +64,7 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
 
     APIService apiService = RetrofitClient.getClient().create(APIService.class);
 
+    String userId = "";
     public interface FaceRecognitionCallback {
         void onFaceRecognised(Face face, float probability, String name);
         void onFaceDetected(Face face, Bitmap faceBitmap, float[] vector);
@@ -65,7 +81,7 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
     private final GraphicOverlay graphicOverlay;
     private final FaceRecognitionCallback callback;
 
-    public FaceRecognition activity;
+//    public FaceRecognition activity;
 
     static FaceModel empFace;
 
@@ -149,7 +165,7 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
                                     Pair<String, Float> result = findNearestFace(faceOutputArray[0]);
                                     // if distance is within confidence
                                     if (result!=null && result.second < 1.0f) {
-                                        faceGraphic.name = result.first;
+//                                        faceGraphic.name = result.first;
                                         callback.onFaceRecognised(face, result.second, result.first);
                                         Log.d(TAG, "Face found!");
                                     }
@@ -180,7 +196,7 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
                 @Override
                 public void onResponse(Call<Employee> call, Response<Employee> response) {
                     System.out.println("response: " + response);
-                    if (response.isSuccessful()) {
+                    if (response.body()!=null && response.isSuccessful()) {
                         empFace = response.body().getFace();
                         Log.d("faceRec API success", "success face got : " + empFace.getName());
                         final String name = empFace.getName();
@@ -222,22 +238,6 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
                 ret[0] = new Pair<>(name, distance);
             }
         }
-//        for (FaceModel person : recognisedFaceList) {
-//        if(empFace!=null) {
-//            final String name = empFace.getName();
-//            final float[] knownVector = empFace.getFaceVector();
-//
-//            float distance = 0;
-//            for (int i = 0; i < vector.length; i++) {
-//                float diff = vector[i] - knownVector[i];
-//                distance += diff * diff;
-//            }
-//            distance = (float) Math.sqrt(distance);
-//            if (ret == null || distance < ret.second) {
-//                ret = new Pair<>(name, distance);
-//            }
-//        }
-//        }
 
         Log.d("in fae rec processor", "returned results : "+ ret[0]);
 
@@ -271,38 +271,93 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
     }
 
     // Register a name against the vector
-    public void registerFace(Editable input, float[] tempVector) {
-        FaceModel face = new FaceModel(input.toString(), tempVector);
-        recognisedFaceList.add(face);
-        Employee emp = new Employee();
-        emp.setName(input.toString());
-        emp.setFace(face);
-        emp.setEmail(input.toString()+"@proxyAuth.com");
-        Log.d("face rec processor", "registerFace: "+emp.getEmail());
-        //change this logic to admin later
-        Call<Employee> call = apiService.registerEmp(emp);
-        call.enqueue(new Callback<Employee>() {
+    public void registerFace(Employee employee, MultipartBody.Part file, float[] tempVector, Context content) {
+        FaceModel face = new FaceModel(employee.getName().toString(), tempVector);
+//        recognisedFaceList.add(face);
+        employee.setFace(face);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(employee);
+        Log.d("Serialized Employee", "Json is : "+json);
+
+        Log.d("face rec processor", "registerFace: "+employee.getEmail()+" "+file.body());
+        Call<String> call = apiService.putImageToBucket(file, employee.getEmail());
+        call.enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<Employee> call, Response<Employee> response) {
-                Log.d("response in post api call employee", "response : "+response);
-                if (response.isSuccessful()) {
-                    // Handle successful response
-//                    Toast.makeText(getC(), "Location added successfully", Toast.LENGTH_SHORT).show();
-                    Log.d("register user", "registered successfully");
-                } else {
-                    // Handle unsuccessful response
-//                    Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
-                    Log.d("register user", "registration unsuccessful");
+            public void onResponse(Call<String> call, Response<String> response) {
+                Log.d(TAG, "onResponse: successfully called register: "+response.body()+" "+response);
+
+                if(response!=null && response.body()!=null) {
+                    //fetch the url of the saved image and store it in emp and then save emp
+                    //make the call for saving emp dets
+                    employee.setImageURL(response.body());
+
+                    //set the shared preference
+                    SharedPreferences sharedPreferences = content.getSharedPreferences("proxyAuth", Context.MODE_PRIVATE);
+                    if (sharedPreferences.getAll().isEmpty()) {
+                        userId = UUID.randomUUID().toString();
+                        employee.setUserId(userId);
+                    }
+
+                    Call<Employee> reg = apiService.registerEmployee(employee);
+                    reg.enqueue(new Callback<Employee>() {
+                        @Override
+                        public void onResponse(Call<Employee> call, Response<Employee> response) {
+                            Log.d(TAG, "onResponse: response on employee save : "+response.body());
+
+                            if(response!=null && response.body()!=null){
+                                Intent i = new Intent(content, Authentication.class);
+                                i.putExtra("employee", employee);
+                                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                content.startActivity(i);
+
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("UUID", userId);
+                                editor.apply();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Employee> call, Throwable throwable) {
+                            Log.d(TAG, "onFailure: emp failed to save "+throwable.getMessage()+" "+throwable.fillInStackTrace());
+                        }
+                    });
+
                 }
+
             }
 
             @Override
-            public void onFailure(Call<Employee> call, Throwable t) {
-                // Handle network errors
-                System.out.println("error: "+t.getStackTrace());
-                Log.d("retrofit post reg emp call", "error"+t.getStackTrace());
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.d(TAG, "onFailure: failed to register emp: "+t.getMessage()+" "+t.fillInStackTrace()+" "+t.getStackTrace());
             }
         });
-
+        
+//        Call<String> call = apiService.test();
+//        call.enqueue(new Callback<String>() {
+//            @Override
+//            public void onResponse(Call<String> call, Response<String> response) {
+//                Log.d(TAG, "onResponse: called!! "+response.message()+" "+response.body());
+//                SharedPreferences sharedPreferences = content.getSharedPreferences("proxyAuth", Context.MODE_PRIVATE);
+//                String userId;
+//                if (sharedPreferences.getAll().isEmpty()) {
+//                    userId = UUID.randomUUID().toString();
+//                    SharedPreferences.Editor editor = sharedPreferences.edit();
+//                    editor.putString("UUID", userId);
+//                    editor.apply();
+//                    employee.setUserId(userId);
+//                }
+//                Intent i = new Intent(content, Authentication.class);
+//                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                content.startActivity(i);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<String> call, Throwable t) {
+//                Log.d(TAG, "onFailure: not called!!");
+//            }
+//        });
+        
     }
 }

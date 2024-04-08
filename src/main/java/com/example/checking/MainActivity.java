@@ -82,7 +82,15 @@ public class MainActivity extends AppCompatActivity{
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
+            try {
+                fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        else{
+            Toast.makeText(this, "Your device is not suitable for this app", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -131,10 +139,10 @@ public class MainActivity extends AppCompatActivity{
             return true;
         }
         else if (itemId == R.id.leave) {
-            LocationListView fragment = new LocationListView();
+            Leaves fragment = new Leaves();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.content, fragment, "");
-            fragmentTransaction.addToBackStack("location");
+            fragmentTransaction.addToBackStack("leave");
             fragmentTransaction.commit();
             return true;
         }

@@ -46,12 +46,13 @@ public class FaceRecognition extends MLVideoHelperActivity implements FaceRecogn
     private float[] faceVector;
     Employee employee;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        makeAddFaceVisible();
         Intent intent = getIntent();
         employee = (Employee) intent.getSerializableExtra("Employee");
         Log.d("TAG", "onCreate: in face rec employee email : "+employee.getEmail());
+        setData(employee, null, false, false);
         super.onCreate(savedInstanceState);
     }
 
@@ -73,7 +74,7 @@ public class FaceRecognition extends MLVideoHelperActivity implements FaceRecogn
                 employee,
                 super.empFace
         );
-        faceRecognitionProcessor.activity = this;
+//        faceRecognitionProcessor.activity = this;
         return faceRecognitionProcessor;
     }
 
@@ -101,36 +102,5 @@ public class FaceRecognition extends MLVideoHelperActivity implements FaceRecogn
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
         //face has been recognized not do the checkin process
-    }
-
-    @Override
-    public void onAddFaceClicked(View view) {
-        super.onAddFaceClicked(view);
-
-        if (face == null || faceBitmap == null) {
-            return;
-        }
-
-        Face tempFace = face;
-        Bitmap tempBitmap = faceBitmap;
-        float[] tempVector = faceVector;
-
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View dialogView = inflater.inflate(R.layout.add_face_dialog, null);
-        ((ImageView) dialogView.findViewById(R.id.dlg_image)).setImageBitmap(tempBitmap);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(dialogView);
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Editable input  = ((EditText) dialogView.findViewById(R.id.dlg_input)).getEditableText();
-                if (input.length() > 0) {
-                    Log.d("register the user in facerec", "coming into the if");
-                    faceRecognitionProcessor.registerFace(input, tempVector);
-                }
-            }
-        });
-        builder.show();
     }
 }
