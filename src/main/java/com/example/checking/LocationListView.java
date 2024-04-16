@@ -1,7 +1,5 @@
 package com.example.checking;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
@@ -9,10 +7,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -21,6 +17,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.checking.Model.LocationsModel;
+import com.example.checking.Service.APIService;
+import com.example.checking.Service.RetrofitClient;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,7 +30,12 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LocationListView extends Fragment{
     private FirebaseFirestore db;
@@ -139,54 +143,80 @@ public class LocationListView extends Fragment{
     }
 
     public class FetchDataAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        public FetchDataAsyncTask() {
-
-        }
-
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
             System.out.println("Helloo????");
             System.out.println("Size : "+dataList.size());
-            FragmentManager fragmentManager = getFragmentManager();
-            productAdapter = new LocationAdapter(getContext(), dataList, fragmentManager);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(),
-                    LinearLayoutManager.VERTICAL, false);
-
-            // in below two lines we are setting layoutmanager and adapter to our recycler view.
-            courseRV.setLayoutManager(linearLayoutManager);
-            courseRV.setAdapter(productAdapter);
+//            FragmentManager fragmentManager = getFragmentManager();
+//            productAdapter = new LocationAdapter(getContext(), dataList, fragmentManager);
+//            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(),
+//                    LinearLayoutManager.VERTICAL, false);
+//
+//            // in below two lines we are setting layoutmanager and adapter to our recycler view.
+//            courseRV.setLayoutManager(linearLayoutManager);
+//            courseRV.setAdapter(productAdapter);
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            CollectionReference collectionRef = db.collection("cities");
-            Task<QuerySnapshot> task = collectionRef.get();
-            task.addOnCompleteListener(task1 -> {
-                if (task1.isSuccessful()) {
-                    QuerySnapshot querySnapshot = task1.getResult();
-                    if (querySnapshot != null) {
-                        for (QueryDocumentSnapshot document : querySnapshot) {
-                            LocationsModel model = document.toObject(LocationsModel.class);
-                            System.out.println("data : " + document.getData());
-                            System.out.println("after data: " + model.getName());
-                            dataList.add(model);
+            System.out.println("in location do in bg");
+//            CollectionReference collectionRef = db.collection("cities");
+//            Task<QuerySnapshot> task = collectionRef.get();
+//            task.addOnCompleteListener(task1 -> {
+//                if (task1.isSuccessful()) {
+//                    QuerySnapshot querySnapshot = task1.getResult();
+//                    if (querySnapshot != null) {
+//                        for (QueryDocumentSnapshot document : querySnapshot) {
+//                            LocationsModel model = document.toObject(LocationsModel.class);
+//                            System.out.println("data : " + document.getData());
+//                            System.out.println("after data: " + model.getName());
+//                            dataList.add(model);
+//                        }
+//                    }
+//                } else {
+//                    // Handle errors
+//                    Exception exception = task1.getException();
+//                    if (exception != null) {
+//                        // Handle the exception
+//                    }
+//                }
+//            });
+//
+//            // Wait for the Firestore operation to complete
+//            try {
+//                Tasks.await(task);
+//            } catch (ExecutionException | InterruptedException e) {
+//                e.printStackTrace();
+//            }
+
+            try{
+                //call updateCheckIn API
+                APIService apiService = RetrofitClient.getClient().create(APIService.class);
+
+                Call<List<LocationsModel>> call = apiService.getAllLocations();
+
+                call.enqueue(new Callback<List<LocationsModel>>() {
+                    @Override
+                    public void onResponse(Call<List<LocationsModel>> call, Response<List<LocationsModel>> response) {
+                        System.out.println("response: "+response);
+                        if (response.isSuccessful()) {
+                            List<LocationsModel> attendanceList = response.body();
+                            System.out.println("location list : "+attendanceList);
+                            // Handle the list of AttendanceModel objects
+                        } else {
+                            System.out.println("API has no response");
+                            // Handle unsuccessful response
                         }
                     }
-                } else {
-                    // Handle errors
-                    Exception exception = task1.getException();
-                    if (exception != null) {
-                        // Handle the exception
-                    }
-                }
-            });
 
-            // Wait for the Firestore operation to complete
-            try {
-                Tasks.await(task);
-            } catch (ExecutionException | InterruptedException e) {
+                    @Override
+                    public void onFailure(Call<List<LocationsModel>> call, Throwable t) {
+                        // Handle network errors
+                        System.out.println(t.fillInStackTrace());
+                    }
+                });
+            }catch (Exception e){
                 e.printStackTrace();
             }
 

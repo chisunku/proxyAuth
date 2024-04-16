@@ -1,11 +1,8 @@
-package com.example.checking;
+package com.example.checking.Model;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
 
-public class Attendance_model implements Serializable {
+public class AttendanceModel implements Serializable {
     String email;
     String time;
     String timeRef;
@@ -13,11 +10,11 @@ public class Attendance_model implements Serializable {
     private int imgId;
     private LocationsModel locationsModel;
 
-    public Attendance_model(){
+    public AttendanceModel(){
 
     }
 
-    public Attendance_model(String email, String time, String timeRef, String date, int imgId){
+    public AttendanceModel(String email, String time, String timeRef, String date, int imgId){
         this.email = email;
         this.time = time;
         this.timeRef = timeRef;
