@@ -22,6 +22,8 @@ import androidx.fragment.app.Fragment;
 import com.example.checking.Model.Employee;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
+import com.google.android.material.color.DynamicColors;
+import com.google.android.material.color.utilities.DynamicColor;
 
 import java.util.concurrent.Executor;
 
@@ -41,6 +43,7 @@ public class Authentication extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DynamicColors.applyToActivitiesIfAvailable(getApplication());
         setContentView(R.layout.activity_auth);
         employee = getIntent().getParcelableExtra("employee");
         Log.d("TAG", "onCreate: authenticate file");

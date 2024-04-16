@@ -64,8 +64,6 @@ public class LocationListView extends Fragment{
                     FragmentManager fragmentManager = getFragmentManager();
                     productAdapter = new LocationAdapter(getContext(), dataList, fragmentManager);
                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.VERTICAL, false);
-
-                    // in below two lines we are setting layoutmanager and adapter to our recycler view.
                     courseRV.setLayoutManager(linearLayoutManager);
                     courseRV.setAdapter(productAdapter);
                     // Handle the list of AttendanceModel objects
