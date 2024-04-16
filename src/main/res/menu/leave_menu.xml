@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/sick"
+        android:title="Sick leave"/>
+
+    <item android:id="@+id/casual"
+        android:title="Casual leave"/>
+
+    <item android:id="@+id/maternity"
+        android:title="Maternity leave"/>
+
+    <item android:id="@+id/paternity"
+        android:title="Paternity leave"/>
+
+    <item android:id="@+id/bereavement"
+        android:title="Bereavement leave"/>
+
+    <item android:id="@+id/pto"
+        android:title="PTO"/>
+
+    <item android:id="@+id/sabbatical"
+        android:title="Sabbatical"/>
+
+    <item android:id="@+id/unpaid"
+        android:title="Unpaid Leave"/>
+
+</menu>

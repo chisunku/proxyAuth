@@ -139,7 +139,10 @@ public class MainActivity extends AppCompatActivity{
             return true;
         }
         else if (itemId == R.id.leave) {
-            Leaves fragment = new Leaves();
+            LeavesFragment fragment = new LeavesFragment();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("Employee", employee);
+            fragment.setArguments(bundle);
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.content, fragment, "");
             fragmentTransaction.addToBackStack("leave");

@@ -3,8 +3,10 @@ package com.example.checking.Service;
 
 import com.example.checking.Model.Attendance;
 import com.example.checking.Model.Employee;
+import com.example.checking.Model.Leaves;
 import com.example.checking.Model.Location;
 
+import java.util.Date;
 import java.util.List;
 
 import okhttp3.MultipartBody;
@@ -15,6 +17,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface APIService {
@@ -75,6 +78,21 @@ public interface APIService {
     @DELETE("/deleteLocation")
     Call<Void> deleteLocation (@Query("locationId") String locationId);
 
+    @GET("/leave/{employeeId}/")
+    Call<List<Leaves>> getLeave(@Path("employeeId") String employeeId);
+
+    @GET("/getPastLeave")
+    Call<List<Leaves>> getPastLeave(@Query("employeeEmail") String employeeEmail, @Query("endDate") Date endDate);
+
+    //getUpcomingLeave
+    @GET("/getUpcomingLeave")
+    Call<List<Leaves>> getUpcomingLeave(@Query("employeeEmail") String employeeEmail, @Query("startDate") Date startDate);
+
+    @GET("/getLeavesStatusCount")
+    Call<List<Leaves>> getLeavesStatusCount(@Query("employeeEmail") String employeeEmail);
+
+    @POST("/leave")
+    Call<Leaves> addLeave(@Body Leaves leaves);
 
 }
 

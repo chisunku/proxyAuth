@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'com.example.checking'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.checking"
         minSdk 29
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
         buildConfigField("String", "API_KEY", API_KEY)
@@ -42,7 +42,7 @@ android {
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.libraries.places:places:3.0.0'
     // https://mvnrepository.com/artifact/androidx.gridlayout/gridlayout
@@ -51,6 +51,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    //material
+//    implementation "androidx.compose.material3:material3:1.2.1"
+//    implementation "androidx.compose.material3:material3-window-size-class:1.2.1"
+//    implementation "androidx.compose.material3:material3-adaptive-navigation-suite:1.0.0-alpha05"
 
     //boundary
     implementation 'com.google.maps.android:android-maps-utils:2.2.0'
@@ -67,6 +72,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
     implementation group: 'com.squareup.retrofit2', name: 'converter-scalars', version: '2.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
 
     // ml
     implementation 'com.google.mlkit:image-labeling:17.0.7'

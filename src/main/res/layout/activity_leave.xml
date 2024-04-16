@@ -28,69 +28,60 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:layout_width="46dp"
-            android:layout_height="41dp"
+            android:id="@+id/addLeaves"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="20dp"
             android:layout_gravity="center"
-            android:src="@drawable/address_location_map_svgrepo_com" />
+            android:src="@drawable/plus_circle_svgrepo_com" />
 
-        <ImageView
-            android:layout_width="46dp"
-            android:layout_height="41dp"
-            android:layout_gravity="center"
-            android:src="@drawable/address_location_map_svgrepo_com" />
+<!--        <ImageView-->
+<!--            android:layout_width="46dp"-->
+<!--            android:layout_height="41dp"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:src="@drawable/address_location_map_svgrepo_com" />-->
 
 
     </LinearLayout>
 
-    <GridLayout
+    <android.widget.GridLayout
         android:id="@+id/gridLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="7dp"
         android:columnCount="2"
         android:orientation="horizontal"
-        android:paddingLeft="30dp"
-        android:paddingRight="30dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:rowCount="2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
         tools:context=".GridXMLActivity">
 
-<!--        <android.widget.Button-->
-<!--            android:id="@+id/leaveType"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:layout_margin="10dp"-->
-<!--            android:background="@drawable/border_blue"-->
-<!--            android:paddingHorizontal="17dp"-->
-<!--            android:paddingVertical="40dp"-->
-<!--            android:text="Leave Balance"-->
-<!--            android:textAlignment="topleft"-->
-<!--            android:textColor="@color/black" />-->
-
         <androidx.cardview.widget.CardView
-            android:id="@+id/checkinBoxCardView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/balanceCardView"
+            android:layout_width="180dp"
+            android:layout_height="124dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            app:cardBackground="@drawable/border_blue"
             app:cardCornerRadius="20dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/checkinBox"
-                android:layout_width="170dp"
-                android:layout_height="135dp"
+                android:id="@+id/balance"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:background="@drawable/border_blue"
                 app:layout_constraintEnd_toStartOf="@+id/checkOutBox"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
+                    android:id="@+id/leaveBalance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
@@ -101,44 +92,185 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/balanceNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="20dp"
+                    android:text=""
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/leaveBalance" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
-        <android.widget.Button
-            android:id="@+id/leaveTypeValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="10dp"
-            android:background="@drawable/border_green"
-            android:paddingHorizontal="37dp"
-            android:paddingVertical="31dp"
-            android:text="Annual&#10;Approved"
-            android:textColor="@color/black" />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/approvedCardView"
+            android:layout_width="180dp"
+            android:layout_height="124dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1">
 
-        <android.widget.Button
-            android:id="@+id/leaveStartDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/border_yellow"
-            android:paddingHorizontal="17dp"
-            android:paddingVertical="40dp"
-            android:text="Leave Pending"
-            android:textColor="@color/black" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/approved"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_green"
+                app:layout_constraintEnd_toStartOf="@+id/checkOutBox"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        <android.widget.Button
-            android:id="@+id/leaveStartDateValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/border_red"
-            android:paddingHorizontal="33dp"
-            android:paddingVertical="31dp"
-            android:text="Leave&#10;Cancelled"
-            android:textColor="@color/black" />
+                <TextView
+                    android:id="@+id/approvedTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:text="Leave&#10;Approved"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/approvedNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="20dp"
+                    android:text=""
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/approvedTV" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/pendingCardView"
+            android:layout_width="180dp"
+            android:layout_height="124dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/pending"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_yellow"
+                app:layout_constraintEnd_toStartOf="@+id/checkOutBox"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/pendingTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:text="Leave&#10;Pending"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/pendingNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="20dp"
+                    android:text=""
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pendingTV" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cancelledCardView"
+            android:layout_width="180dp"
+            android:layout_height="124dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cancelled"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_red"
+                app:layout_constraintEnd_toStartOf="@+id/checkOutBox"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/cancelledTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:text="Leave&#10;Cancelled"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/cancelledNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="20dp"
+                    android:text=""
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cancelledTV" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
 
 
-    </GridLayout>
+    </android.widget.GridLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@color/white"
+        app:tabTextColor="@color/black"
+        app:tabSelectedTextColor="@color/blue"
+        app:layout_constraintTop_toBottomOf="@+id/gridLayout" />
+
+
+    <androidx.viewpager.widget.ViewPager
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout"
+        app:layout_constraintStart_toEndOf="parent"
+        android:id="@+id/view_pager"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
