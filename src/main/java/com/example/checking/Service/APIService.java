@@ -94,5 +94,26 @@ public interface APIService {
     @POST("/leave")
     Call<Leaves> addLeave(@Body Leaves leaves);
 
+    @GET("/leave/{employeeEmail}/{status}")
+    Call<List<Leaves>> getLeavesByFilter(@Path("employeeEmail") String employeeEmail, @Path("status") String status);
+
+    @GET("/leave/notApproved")
+    Call<List<Leaves>> getNotApprovedLeaves(@Query("startDate") Date startDate);
+
+    @POST("/leave/approve/{id}")
+    Call<String> approveLeave(@Path("id") String id, @Query("approvedBy") String approvedBy);
+
+    @POST("/leave/reject/{id}")
+    Call<String> rejectLeave(@Path("id") String id, @Query("rejectReason") String rejectReason, @Query("approvedBy") String approvedBy);
+
+    @GET("/adminEmail")
+    Call<Employee> adminEmail(@Query("email") String email, @Query("password") String password);
+
+    @GET("/leave/getAllAfterStartDate")
+    Call<List<Leaves>> getAllAfterStartDate(@Query("startDate") Date startDate);
+
+    @GET("/getAllEmployees")
+    Call<List<Employee>> getAllEmployees();
+
 }
 

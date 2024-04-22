@@ -49,7 +49,7 @@ public class AddLeaveFragment extends Fragment {
         leaveTypes.add("PTO");
         leaveTypes.add("Unpaid Leave");
 
-        ArrayAdapter arrayadapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, leaveTypes);
+        ArrayAdapter arrayadapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, leaveTypes);
         arrayadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         AutoCompleteTextView type = view.findViewById(R.id.leaveType);

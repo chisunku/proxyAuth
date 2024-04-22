@@ -1,34 +1,25 @@
 package com.example.checking;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.checking.Model.Employee;
 import com.example.checking.Model.Leaves;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
-import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.tabs.TabLayout;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -44,38 +35,36 @@ public class LeavesFragment extends Fragment {
     APIService apiService;
 
     List<Leaves> leaves;
+    Boolean admin = false;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_leave, parent, false);
-
-        // Restore ViewPager state if available
-        if (savedInstanceState != null) {
-            int viewPagerPosition = savedInstanceState.getInt("viewPagerPosition", 0);
-            viewPager.setCurrentItem(viewPagerPosition);
-        }
-
-        // Restore state of each fragment in the ViewPager
-        if (savedInstanceState != null) {
-            ArrayList<Leaves> upcomingLeaves = savedInstanceState.getParcelableArrayList("upcomingLeaves");
-            ArrayList<Leaves> pastLeaves = savedInstanceState.getParcelableArrayList("pastLeaves");
-            // Update UI with restored data if needed
-        }
-
         Bundle bundle = getArguments();
         employee = (Employee) bundle.getSerializable("Employee");
+        admin = bundle.getBoolean("admin");
+        FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
+        if(admin){
+            LeavesAdmin leavesAdmin = new LeavesAdmin();
+            Bundle bundle2 = new Bundle();
+            bundle2.putSerializable("employee", employee);
+            leavesAdmin.setArguments(bundle2);
+            fragmentTransaction.replace(R.id.content, leavesAdmin);
+            fragmentTransaction.addToBackStack("LeaveFragment");
+            fragmentTransaction.commit();
+        }
+
         apiService = RetrofitClient.getClient().create(APIService.class);
         Log.d("TAG", "onCreateView: layout inflated Leaves Fragment : "+employee.getEmail());
         Log.d("TAG", "onCreateView: progressbar set to visible");
         tabLayout = view.findViewById(R.id.tabLayout);
         viewPager = view.findViewById(R.id.view_pager);
 
-        viewPagerAdapter = new ViewPagerAdapter(getParentFragmentManager());
+        viewPagerAdapter = new ViewPagerAdapter(getChildFragmentManager());
+        viewPagerAdapter.add(LeavesUpcoming.newInstance(employee), "Upcoming");
+        viewPagerAdapter.add(LeavesPast.newInstance(employee), "Past");
 
         // add the fragments
         //add extra to the fragment
-        viewPagerAdapter.add(new UpcomingLeaves(), "Upcoming", employee);
-        viewPagerAdapter.add(new PastLeaves(), "Past", employee);
-
         viewPager.setAdapter(viewPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
 
@@ -122,8 +111,42 @@ public class LeavesFragment extends Fragment {
             Bundle bundle1 = new Bundle();
             bundle1.putSerializable("Employee", employee);
             addLeaveFragment.setArguments(bundle1);
-            FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.content, addLeaveFragment);
+            fragmentTransaction.addToBackStack("LeaveFragment");
+            fragmentTransaction.commit();
+        });
+
+        LeavesFilter leavesFilter = new LeavesFilter();
+        Bundle bundle1 = new Bundle();
+        bundle1.putSerializable("employee", employee);
+
+
+        //leave approves
+        CardView approved = view.findViewById(R.id.approvedCardView);
+        approved.setOnClickListener(v -> {
+            bundle1.putString("status", "Approved");
+            leavesFilter.setArguments(bundle1);
+            fragmentTransaction.replace(R.id.content, leavesFilter);
+            fragmentTransaction.addToBackStack("LeaveFragment");
+            fragmentTransaction.commit();
+        });
+
+        //leave rejected
+        CardView cancelled = view.findViewById(R.id.cancelledCardView);
+        cancelled.setOnClickListener(v -> {
+            bundle1.putString("status", "Rejected");
+            leavesFilter.setArguments(bundle1);
+            fragmentTransaction.replace(R.id.content, leavesFilter);
+            fragmentTransaction.addToBackStack("LeaveFragment");
+            fragmentTransaction.commit();
+        });
+
+        //leave pending
+        CardView pendingCardView = view.findViewById(R.id.pendingCardView);
+        pendingCardView.setOnClickListener(v -> {
+            bundle1.putString("status", "Pending");
+            leavesFilter.setArguments(bundle1);
+            fragmentTransaction.replace(R.id.content, leavesFilter);
             fragmentTransaction.addToBackStack("LeaveFragment");
             fragmentTransaction.commit();
         });
@@ -133,28 +156,7 @@ public class LeavesFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // Save ViewPager state if needed
-        // For example, you can save the current item position:
-        if (viewPager != null && viewPager.getAdapter() != null) {
-            outState.putInt("viewPagerPosition", viewPager.getCurrentItem());
-        }
-
-        // Save state of each fragment in the ViewPager
-        if (viewPagerAdapter != null) {
-            for (int i = 0; i < viewPagerAdapter.getCount(); i++) {
-                Fragment fragment = viewPagerAdapter.getItem(i);
-                if (fragment instanceof UpcomingLeaves) {
-                    // Save state of the UpcomingLeaves fragment
-                    UpcomingLeaves upcomingFragment = (UpcomingLeaves) fragment;
-                    outState.putParcelableArrayList("upcomingLeaves", (ArrayList<? extends Parcelable>) upcomingFragment.leavesList);
-                } else if (fragment instanceof PastLeaves) {
-                    // Save state of the PastLeaves fragment
-                    PastLeaves pastFragment = (PastLeaves) fragment;
-                    outState.putParcelableArrayList("pastLeaves", (ArrayList<? extends Parcelable>) pastFragment.leavesList);
-                }
-            }
-        }
+    public void onResume() {
+        super.onResume();
     }
 }

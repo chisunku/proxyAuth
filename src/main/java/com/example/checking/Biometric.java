@@ -121,7 +121,7 @@ public class Biometric extends AppCompatActivity {
 
         promptInfo = new BiometricPrompt.PromptInfo.Builder().setTitle("Checkin at ProxyAuth!")
                 .setDescription("Use FingerPrint to Login..")
-                .setDeviceCredentialAllowed(true).build();
+                .setDeviceCredentialAllowed(false).build();
 
         biometricPrompt.authenticate(promptInfo);
     }

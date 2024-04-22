@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity{
     private LatLng userLocation;
 
     Employee employee;
+    Boolean admin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,17 +41,28 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
         Intent intent = getIntent();
         employee = (Employee) intent.getSerializableExtra("Employee");
+        admin = intent.getBooleanExtra("admin", false);
+
         Log.d("mainActivity", "onCreate: employee name : "+employee.getName());
         navigationView = findViewById(R.id.bottom_navigation);
         navigationView.setOnNavigationItemSelectedListener(navListener);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        HomeFragment fragment = new HomeFragment();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("Employee", employee);
-        fragment.setArguments(bundle);
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.content, fragment, "");
-        fragmentTransaction.commit();
+
+        if(admin){
+            LiveTracking fragment = new LiveTracking();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.content, fragment, "main");
+            fragmentTransaction.commit();
+        }
+        else {
+            HomeFragment fragment = new HomeFragment();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("Employee", employee);
+            fragment.setArguments(bundle);
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.content, fragment, "");
+            fragmentTransaction.commit();
+        }
     }
 
     private void enableMyLocation() {
@@ -121,17 +133,30 @@ public class MainActivity extends AppCompatActivity{
     private final BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {
         int itemId = item.getItemId();
         if(itemId == R.id.home){
-            HomeFragment fragment = new HomeFragment();
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("Employee", employee);
-            fragment.setArguments(bundle);
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.content, fragment, "");
-            fragmentTransaction.addToBackStack("home");
-            fragmentTransaction.commit();
+            if(admin){
+                LiveTracking fragment = new LiveTracking();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content, fragment, "main");
+                fragmentTransaction.commit();
+            }
+            else {
+                HomeFragment fragment = new HomeFragment();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("Employee", employee);
+                bundle.putBoolean("admin", admin);
+                fragment.setArguments(bundle);
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content, fragment, "");
+                fragmentTransaction.addToBackStack("home");
+                fragmentTransaction.commit();
+            }
             return true;
         } else if (itemId == R.id.location) {
             LocationListView fragment = new LocationListView();
+            Bundle bundle = new Bundle();
+            Log.d("TAG", "admin bool flag for location : "+admin);
+            bundle.putBoolean("admin", admin);
+            fragment.setArguments(bundle);
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.content, fragment, "");
             fragmentTransaction.addToBackStack("location");
@@ -142,6 +167,7 @@ public class MainActivity extends AppCompatActivity{
             LeavesFragment fragment = new LeavesFragment();
             Bundle bundle = new Bundle();
             bundle.putSerializable("Employee", employee);
+            bundle.putBoolean("admin", admin);
             fragment.setArguments(bundle);
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.content, fragment, "");
@@ -156,6 +182,29 @@ public class MainActivity extends AppCompatActivity{
             fragmentTransaction.addToBackStack("location");
             fragmentTransaction.commit();
             return true;
+        }
+        else if(itemId == R.id.profile){
+            Log.d("TAG", "in admin profile : "+admin);
+            if(admin){
+                Log.d("TAG", "in admin profile : "+admin);
+                EmpView fragment = new EmpView();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content, fragment, "");
+                fragmentTransaction.addToBackStack("profile");
+                fragmentTransaction.commit();
+                return true;
+            }
+            else {
+                Profile fragment = new Profile();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("employee", employee);
+                fragment.setArguments(bundle);
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content, fragment, "");
+                fragmentTransaction.addToBackStack("profile");
+                fragmentTransaction.commit();
+                return true;
+            }
         }
         // It will help to replace the
         // one fragment to other.

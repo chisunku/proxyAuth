@@ -7,7 +7,7 @@
     <item
         android:id="@+id/location"
         android:enabled="true"
-        android:icon="@drawable/location"
+        android:icon="@drawable/location_hollow"
         android:title="Locations"/>
     <item
         android:id="@+id/placeholder"

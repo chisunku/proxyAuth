@@ -37,6 +37,7 @@ public class LocationListView extends Fragment{
     List<Location> dataList;
 
     LocationAdapter productAdapter;
+    Boolean admin;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_list_locations, parent, false);
@@ -44,11 +45,14 @@ public class LocationListView extends Fragment{
         ProgressBar loadingProgressBar = view.findViewById(R.id.loadingLayout);
         loadingProgressBar.setVisibility(View.VISIBLE);
 
-        Bundle bundle = this.getArguments();
+        Bundle bundle = getArguments();
+        admin = bundle != null ? bundle.getBoolean("admin") : false;
+
+        if(bundle == null)
+            Log.d("TAG", "onCreateView: bundle is null");
+
         //if bundle item null then set to null
         dataList = bundle != null ? (List<Location>) bundle.getSerializable("dataList") : new ArrayList<>();
-
-        Log.d("TAG", "onCreateView: bundle size "+dataList.size());
 
 //        dataList = new ArrayList<>();
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
@@ -79,98 +83,107 @@ public class LocationListView extends Fragment{
                 System.out.println(t.fillInStackTrace());
             }
         });
+
         FloatingActionButton addLoc = view.findViewById(R.id.addLocation);
-        addLoc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Boundary fragment = new Boundary();
-                fragment.fetchAdapeter(productAdapter, dataList);
 
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.content, fragment, "");
-                fragmentTransaction.addToBackStack("boundary");
-                fragmentTransaction.commit();
-            }
-        });
+        if(admin){
+            addLoc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Boundary fragment = new Boundary();
+                    fragment.fetchAdapeter(productAdapter, dataList);
 
-        ColorDrawable background = new ColorDrawable(ContextCompat.getColor(getContext(), R.color.delete));
-
-        //Delete
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                // this method is called
-                // when the item is moved.
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                Location model = dataList.get(viewHolder.getAdapterPosition());
-                int position = viewHolder.getAdapterPosition();
-                dataList.remove(viewHolder.getAdapterPosition());
-                productAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-
-                Call<Void> call = apiService.deleteLocation(model.getId());
-                call.enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        Log.d("TAG", "onResponse: deleted location "+response);
-                    }
-
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable throwable) {
-                        Log.d("TAG", "onResponse: couldn't delete location "+throwable.getStackTrace()+" "+throwable.getMessage());
-                    }
-                });
-
-                // below line is to display our snackbar with action.
-                Snackbar.make(courseRV, model.getName(), Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // adding on click listener to our action of snack bar.
-                        dataList.add(position, model);
-                        Call<String> call = apiService.addLocation(model);
-                        call.enqueue(new Callback<String>() {
-                            @Override
-                            public void onResponse(Call<String> call, Response<String> response) {
-                                Log.d("TAG", "onResponse: added location "+response);
-                            }
-
-                            @Override
-                            public void onFailure(Call<String> call, Throwable throwable) {
-                                Log.d("TAG", "onResponse: couldn't add location "+throwable.getStackTrace()+" "+throwable.getMessage());
-                            }
-                        });
-                        productAdapter.notifyItemInserted(position);
-                    }
-                }).show();
-
-            }
-            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-                                    @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
-                                    int actionState, boolean isCurrentlyActive) {
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-                View itemView = viewHolder.itemView;
-                int backgroundCornerOffset = 5;
-
-                if (dX > 0) { // Swiping to the right
-                    background.setBounds(itemView.getLeft(), itemView.getTop(),
-                            itemView.getLeft() + ((int) dX) + backgroundCornerOffset,
-                            itemView.getBottom());
-
-                } else if (dX < 0) { // Swiping to the left
-                    background.setBounds(itemView.getRight() + ((int) dX) - backgroundCornerOffset,
-                            itemView.getTop(), itemView.getRight(), itemView.getBottom());
-                } else { // view is unSwiped
-                    background.setBounds(0, 0, 0, 0);
+                    FragmentManager fragmentManager = getFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.content, fragment, "");
+                    fragmentTransaction.addToBackStack("boundary");
+                    fragmentTransaction.commit();
                 }
-                background.draw(c);
-            }
-            // at last we are adding this
-            // to our recycler view.
-        }).attachToRecyclerView(courseRV);
+            });
+
+            ColorDrawable background = new ColorDrawable(ContextCompat.getColor(getContext(), R.color.delete));
+
+            //Delete
+            new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    // this method is called
+                    // when the item is moved.
+                    return false;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    Location model = dataList.get(viewHolder.getAdapterPosition());
+                    int position = viewHolder.getAdapterPosition();
+                    dataList.remove(viewHolder.getAdapterPosition());
+                    productAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+
+                    Call<Void> call = apiService.deleteLocation(model.getId());
+                    call.enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            Log.d("TAG", "onResponse: deleted location " + response);
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable throwable) {
+                            Log.d("TAG", "onResponse: couldn't delete location " + throwable.getStackTrace() + " " + throwable.getMessage());
+                        }
+                    });
+
+                    // below line is to display our snackbar with action.
+                    Snackbar.make(courseRV, model.getName(), Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // adding on click listener to our action of snack bar.
+                            dataList.add(position, model);
+                            Call<String> call = apiService.addLocation(model);
+                            call.enqueue(new Callback<String>() {
+                                @Override
+                                public void onResponse(Call<String> call, Response<String> response) {
+                                    Log.d("TAG", "onResponse: added location " + response);
+                                }
+
+                                @Override
+                                public void onFailure(Call<String> call, Throwable throwable) {
+                                    Log.d("TAG", "onResponse: couldn't add location " + throwable.getStackTrace() + " " + throwable.getMessage());
+                                }
+                            });
+                            productAdapter.notifyItemInserted(position);
+                        }
+                    }).show();
+
+                }
+
+                public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                                        @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
+                                        int actionState, boolean isCurrentlyActive) {
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                    View itemView = viewHolder.itemView;
+                    int backgroundCornerOffset = 5;
+
+                    if (dX > 0) { // Swiping to the right
+                        background.setBounds(itemView.getLeft(), itemView.getTop(),
+                                itemView.getLeft() + ((int) dX) + backgroundCornerOffset,
+                                itemView.getBottom());
+
+                    } else if (dX < 0) { // Swiping to the left
+                        background.setBounds(itemView.getRight() + ((int) dX) - backgroundCornerOffset,
+                                itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                    } else { // view is unSwiped
+                        background.setBounds(0, 0, 0, 0);
+                    }
+                    background.draw(c);
+                }
+                // at last we are adding this
+                // to our recycler view.
+            }).attachToRecyclerView(courseRV);
+        }
+        else{
+            addLoc.setVisibility(View.GONE);
+            Log.d("TAG", "onCreateView: admin is false "+admin);
+        }
 
         return view;
     }
