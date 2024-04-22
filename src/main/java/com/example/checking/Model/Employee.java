@@ -12,6 +12,33 @@ public class Employee implements Serializable {
     String password;
     String userId;
     String address;
+    double latitude;
+    double longitude;
+    String contactNo;
+
+    public void setContactNo(String contactNo) {
+        this.contactNo = contactNo;
+    }
+
+    public String getContactNo() {
+        return contactNo;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
 
     public String getAddress() {
         return address;

@@ -1,6 +1,13 @@
 package com.example.checking;
 
+import static android.app.PendingIntent.FLAG_MUTABLE;
+import static android.content.Context.ALARM_SERVICE;
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -39,6 +46,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -63,6 +71,10 @@ public class HomeFragment extends Fragment {
     private ProgressBar loadingProgressBar;
 
     ImageView profile_image;
+    private PendingIntent pendingIntent;
+
+    //Service
+    Intent serviceIntent;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -81,6 +93,9 @@ public class HomeFragment extends Fragment {
             Log.d(TAG, "onCreateView: arguments is null");
             getActivity().getFragmentManager().popBackStack();
         }
+
+        //Service
+        serviceIntent = new Intent(getContext(), LocationService.class);
 
         //fetch attendance
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
@@ -235,12 +250,6 @@ public class HomeFragment extends Fragment {
         });
     }
 
-//    private void check(View view){
-    //get latest record and check if its today
-//        APIService apiService = RetrofitClient.getClient().create(APIService.class);
-//        Call<Attendance> saveCall = apiService.checkInUser(attendanceModel);
-//    }
-
     private void checkout(View view){
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
         // Get the current date and time as LocalDateTime
@@ -275,6 +284,8 @@ public class HomeFragment extends Fragment {
     }
 
     public void checkLogIn(View view){
+        getContext().startService(serviceIntent);
+
         Log.d(TAG, "checkLogIn: in checkin");
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
 
@@ -321,6 +332,25 @@ public class HomeFragment extends Fragment {
                             dataHistory.add(0, fetchAttnedance);
                             Log.d(TAG, "onResponse: dataset size after : "+dataHistory.size());
                             attendanceHistoryAdapter.notifyDataSetChanged();
+
+                            // Create an Intent for the Service you want to start
+                            Intent serviceIntent = new Intent(getContext(), LocationService.class);
+
+                            // Create a PendingIntent to start the service
+                            PendingIntent pendingIntent = PendingIntent.getService(getContext(), 0, serviceIntent, FLAG_MUTABLE);
+
+                            // Get an instance of AlarmManager
+                            AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+
+                            // Set the interval for the alarm
+                            long intervalMillis = 1000; // 15 minutes in milliseconds
+
+                            // Calculate the time when the first alarm should trigger
+                            long triggerTime = System.currentTimeMillis();
+
+                            // Set the alarm using AlarmManager
+                            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, triggerTime, intervalMillis, pendingIntent);
+
                         }
 
                         @Override

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -58,16 +59,19 @@ public class LeavesAdapter extends RecyclerView.Adapter<LeavesAdapter.handler>{
         String startDate = format.format(start);
         String endDate = format.format(end);
         holder.dateRange.setText(startDate + " - " + endDate);
-        holder.leaveBalance.setText("Leave Balance: 10");
+        holder.leaveType.setText(model.getLeaveType());
         holder.approvedBy.setText(model.getApprovalManager());
         holder.status.setText(model.getApprovalStatus());
         if (model.getApprovalStatus().equals("Pending")) {
             holder.status.setTextColor(context.getResources().getColor(R.color.pendingText));
             holder.status.setBackgroundResource(R.drawable.button_color_yellow);
+            holder.approvedBy.setText("-");
         }
         else if (model.getApprovalStatus().equals("Rejected")) {
             holder.status.setTextColor(context.getResources().getColor(R.color.rejectedText));
             holder.status.setBackgroundResource(R.drawable.button_color_red);
+            holder.rejectReasonLayout.setVisibility(View.VISIBLE);
+            holder.rejectReason.setText(model.getRejectReason());
         }
         else{
             holder.status.setTextColor(context.getResources().getColor(R.color.approvedText));
@@ -85,11 +89,14 @@ public class LeavesAdapter extends RecyclerView.Adapter<LeavesAdapter.handler>{
         //        private final ImageView courseIV;
         private final TextView dateRange;
         private final TextView applyDays;
-        private final TextView leaveBalance;
+        private final TextView leaveType;
 
         private final TextView approvedBy;
         private CardView cardView;
         private ImageView img;
+
+        private LinearLayout rejectReasonLayout;
+        private TextView rejectReason;
 
         private AppCompatButton status;
 
@@ -98,8 +105,10 @@ public class LeavesAdapter extends RecyclerView.Adapter<LeavesAdapter.handler>{
             dateRange = itemView.findViewById(R.id.dateRange);
             status = itemView.findViewById(R.id.status);
             applyDays = itemView.findViewById(R.id.applyDays);
-            leaveBalance = itemView.findViewById(R.id.leaveBalance);
+            leaveType = itemView.findViewById(R.id.leaveType);
             approvedBy = itemView.findViewById(R.id.approvedBy);
+            rejectReasonLayout = itemView.findViewById(R.id.rejectReasonLayout);
+            rejectReason = itemView.findViewById(R.id.reasonToReject);
         }
     }
 

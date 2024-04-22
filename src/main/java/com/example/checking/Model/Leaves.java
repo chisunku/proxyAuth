@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class Leaves implements Serializable, Parcelable {
+
+    private String id;
     private String email;
     private String leaveType;
     private String leaveSubType;
@@ -19,6 +21,23 @@ public class Leaves implements Serializable, Parcelable {
     private String approvalStatus = "Pending";
     private String approvalManager;
     private int count;
+    private String rejectReason;
+
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getEmail() {
         return email;

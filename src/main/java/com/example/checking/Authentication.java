@@ -52,18 +52,7 @@ public class Authentication extends AppCompatActivity {
         //else show 2 buttons like discover app where the user can login with email or biometric
         // Retrieve SharedPreferences
         sharedPreferences = getApplicationContext().getSharedPreferences("proxyAuth", Context.MODE_PRIVATE);
-//        Call<String> call = apiService.test();
-//        call.enqueue(new Callback<String>() {
-//            @Override
-//            public void onResponse(Call<String> call, Response<String> response) {
-//                Log.d("TAG", "onResponse: called!!");
-//            }
-//
-//            @Override
-//            public void onFailure(Call<String> call, Throwable t) {
-//                Log.d("TAG", "onResponse: failed!! "+t.getStackTrace()+" "+t.getMessage()+" "+t.fillInStackTrace());
-//            }
-//        });
+
         // Check if SharedPreferences is empty
         if (isSharedPreferencesEmpty()) {
             Log.d("TAG", "onCreate: shared pref empty");
@@ -100,6 +89,7 @@ public class Authentication extends AppCompatActivity {
                 // Handle email login button click
                 // Implement your logic to navigate to the email login screen
                 Intent loginIntent = new Intent(getApplicationContext(), LoginWithEmail.class);
+                loginIntent.putExtra("admin", false);
                 startActivity(loginIntent);
                 finish();
             }
@@ -171,9 +161,11 @@ public class Authentication extends AppCompatActivity {
                     }
                 });
 
-                promptInfo = new BiometricPrompt.PromptInfo.Builder().setTitle("Checkin at ProxyAuth!")
+                promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                        .setTitle("Checkin at ProxyAuth!")
                         .setDescription("Use FingerPrint to Login..")
-                        .setDeviceCredentialAllowed(true).build();
+                        .setNegativeButtonText("Cancel")
+                        .setDeviceCredentialAllowed(false).build();
 
                 biometricPrompt.authenticate(promptInfo);
             }

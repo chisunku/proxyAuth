@@ -14,16 +14,27 @@
         android:outlineSpotShadowColor="@color/black"
         android:elevation="20dp">
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="Leave Form"
+                android:textColor="@color/black"
+                android:textSize="30dp"
+                android:gravity="center_horizontal"/>
+
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Select Leave Type"
+                app:endIconTint="@color/black"
                 android:layout_margin="20dp"
                 android:textColorHint="@color/grey"
                 app:boxStrokeColor="@color/black"

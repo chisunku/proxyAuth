@@ -18,7 +18,6 @@ import com.example.checking.Model.Leaves;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -26,14 +25,24 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class UpcomingLeaves extends Fragment {
+public class LeavesUpcoming extends Fragment {
 
     APIService apiService;
     LeavesAdapter adapter;
 
     public List<Leaves> leavesList;
+
+    public static LeavesUpcoming newInstance(Employee employee) {
+        LeavesUpcoming fragment = new LeavesUpcoming();
+        Bundle args = new Bundle();
+        args.putSerializable("employee", employee);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_leaves_type, container, false);
+        Log.d("TAG", "onCreateView: Inside upcoming leaves fragment");
         Bundle bundle = getArguments();
         Employee employee = (Employee) bundle.getSerializable("employee");
         TextView noData = view.findViewById(R.id.NoData);

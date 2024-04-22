@@ -31,4 +31,5 @@
     <color name="approvedText">#87DD80</color>
     <color name="rejectedText">#C34040</color>
     <color name="pendingText">#FFB907</color>
+    <color name="cardBG">#ECF8F7</color>
 </resources>
