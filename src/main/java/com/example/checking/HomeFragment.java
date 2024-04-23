@@ -96,6 +96,9 @@ public class HomeFragment extends Fragment {
 
         //Service
         serviceIntent = new Intent(getContext(), LocationService.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("Employee", employee);
+        serviceIntent.putExtras(bundle);
 
         //fetch attendance
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
@@ -251,6 +254,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void checkout(View view){
+        getContext().stopService(serviceIntent);
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
         // Get the current date and time as LocalDateTime
         LocalDateTime currentDateTime = LocalDateTime.now();
