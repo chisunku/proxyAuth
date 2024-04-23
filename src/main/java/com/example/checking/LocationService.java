@@ -20,16 +20,21 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.checking.Model.Employee;
+
 public class LocationService extends Service {
 
     private static final String TAG = "ForegroundService";
     private static final int NOTIFICATION_ID = 123;
 
     private LocationManager locationManager;
+    Employee employee;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: starting service");
+        Bundle bundle = intent.getExtras();
+        employee = (Employee) bundle.getSerializable("Employee");
         createNotificationChannel();
         getLocation();
         startForeground(NOTIFICATION_ID, getNotification());
@@ -66,7 +71,7 @@ public class LocationService extends Service {
             // Check for the last known location
             Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (lastKnownLocation != null) {
-                Log.d(TAG, "Last known location: " + lastKnownLocation.toString());
+                Log.d(TAG, "Last known location: " + lastKnownLocation.getLatitude()+" "+lastKnownLocation.getLongitude());
             } else {
                 Log.d(TAG, "Last known location is null");
             }
@@ -112,4 +117,5 @@ public class LocationService extends Service {
         }
         return builder.build();
     }
+
 }

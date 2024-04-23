@@ -40,7 +40,7 @@ public class Location implements Serializable {
         this.id = id;
     }
 
-    public static class Point {
+    public static class Point implements Serializable {
         private double latitude;
         private double longitude;
 

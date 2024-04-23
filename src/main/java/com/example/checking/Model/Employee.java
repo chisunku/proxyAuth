@@ -1,8 +1,14 @@
 package com.example.checking.Model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 public class Employee implements Serializable {
+//    String id;
     String name;
     String email;
     Location location;
@@ -15,6 +21,10 @@ public class Employee implements Serializable {
     double latitude;
     double longitude;
     String contactNo;
+
+//    public void getID(String id){
+//        this.id = id;
+//    }
 
     public void setContactNo(String contactNo) {
         this.contactNo = contactNo;

@@ -20,8 +20,6 @@ import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 
 import com.example.checking.Authentication;
-import com.example.checking.MainActivity;
-import com.example.checking.Model.EmpRegistration;
 import com.example.checking.Model.Employee;
 import com.example.checking.Model.FaceModel;
 import com.example.checking.RegisterFace;
@@ -197,11 +195,13 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
                 public void onResponse(Call<Employee> call, Response<Employee> response) {
                     System.out.println("response: " + response);
                     if (response.body()!=null && response.isSuccessful()) {
+                        Log.d(TAG, "onResponse: response in nearest face thing : "+response);
                         empFace = response.body().getFace();
-                        Log.d("faceRec API success", "success face got : " + empFace.getName());
+                        if(empFace == null){
+                            return;
+                        }
                         final String name = empFace.getName();
                         final float[] knownVector = empFace.getFaceVector();
-
                         float distance = 0;
                         for (int i = 0; i < vector.length; i++) {
                             float diff = vector[i] - knownVector[i];

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -144,6 +145,15 @@ public abstract class MLVideoHelperActivity extends AppCompatActivity {
                         .build();
 
         setFaceDetector(lensFacing);
+
+        // Check camera permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+//            startCamera();
+            Toast.makeText(this, "camera access given", Toast.LENGTH_SHORT).show();
+        } else {
+            this.requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
+        }
+
         cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview);
     }
 

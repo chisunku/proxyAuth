@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import androidx.fragment.app.Fragment;
@@ -43,6 +44,14 @@ public class EmpView extends Fragment {
 
             public void onFailure(Call<List<Employee>> call, Throwable t) {
                 Log.d("TAG", "onFailure: called admin Leaves!! ");
+            }
+        });
+
+        ImageView addEmp = view.findViewById(R.id.addEmp);
+        addEmp.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+//                AddEmployee addEmployee = new AddEmployee();
+//                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content, addEmployee).commit();
             }
         });
 
