@@ -115,5 +115,9 @@ public interface APIService {
     @GET("/getAllEmployees")
     Call<List<Employee>> getAllEmployees();
 
+    @Multipart
+    @POST("/addEmployees")
+    Call<Boolean> addEmployees(@Part MultipartBody.Part file, @Part("name") String name);
+
 }
 
