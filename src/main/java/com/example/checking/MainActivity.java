@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity{
         int itemId = item.getItemId();
         if(itemId == R.id.home){
             if(admin){
-                LiveTracking fragment = new LiveTracking();
+                LocationListView fragment = new LocationListView();
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.content, fragment, "main");
                 fragmentTransaction.commit();

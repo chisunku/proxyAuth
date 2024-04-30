@@ -150,7 +150,7 @@ public class Authentication extends AppCompatActivity {
                             @Override
                             public void onFailure(Call<Employee> call, Throwable t) {
                                 // Handle network errors
-                                System.out.println("error Auth with email: " + t.fillInStackTrace());
+                                System.out.println("error Auth with Biometric: " + t.fillInStackTrace()+" "+t.getStackTrace());
                             }
                         });
                     }

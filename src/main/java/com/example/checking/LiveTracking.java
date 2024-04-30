@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment;
 public class LiveTracking extends Fragment {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_hr_main_view, container, false);
+        View view = inflater.inflate(R.layout.activity_live_tracking, container, false);
         return view;
     }
 

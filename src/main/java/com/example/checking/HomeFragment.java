@@ -1,14 +1,14 @@
 package com.example.checking;
 
 import static android.app.PendingIntent.FLAG_MUTABLE;
-import static android.content.Context.ALARM_SERVICE;
-import static androidx.core.content.ContextCompat.getSystemService;
+import static android.app.ProgressDialog.show;
 
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -35,6 +35,7 @@ import com.example.checking.Model.Attendance;
 import com.example.checking.Model.Employee;
 import com.example.checking.Model.Location;
 import com.example.checking.Service.APIService;
+import com.example.checking.Service.FragmentChangeListener;
 import com.example.checking.Service.RetrofitClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -46,7 +47,6 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -54,7 +54,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements FragmentChangeListener {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LatLng userLocation;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -79,6 +79,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, parent, false);
+
         loadingProgressBar = view.findViewById(R.id.attendanceLoading);
         Log.d(TAG, "onCreateView: homefragment");
         //get employee
@@ -88,6 +89,11 @@ public class HomeFragment extends Fragment {
             if(employee == null)
                 Log.d(TAG, "onCreateView: yes emp is null");
             Log.d(TAG, "onCreateView: emp name in fragment : "+employee.getImageURL());
+
+            //saving email in shared preference for the service to access
+            SharedPreferences.Editor editor = getActivity().getSharedPreferences("proxyAuth", Context.MODE_PRIVATE).edit();
+            editor.putString("email", employee.getEmail());
+            editor.apply();
         }
         else{
             Log.d(TAG, "onCreateView: arguments is null");
@@ -96,9 +102,6 @@ public class HomeFragment extends Fragment {
 
         //Service
         serviceIntent = new Intent(getContext(), LocationService.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("Employee", employee);
-        serviceIntent.putExtras(bundle);
 
         //fetch attendance
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
@@ -253,8 +256,10 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void checkout(View view){
+    @Override
+    public void checkout(View view){
         getContext().stopService(serviceIntent);
+        Log.d(TAG, "checkout: stop service called");
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
         // Get the current date and time as LocalDateTime
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -293,7 +298,7 @@ public class HomeFragment extends Fragment {
         Log.d(TAG, "checkLogIn: in checkin");
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
 
-        Call<Location> call = apiService.checkLocation(userLocation.latitude, userLocation.longitude);
+        Call<Location> call = apiService.checkLocation(userLocation.latitude, userLocation.longitude, employee.getEmail());
         call.enqueue(new Callback<Location>() {
             @Override
             public void onResponse(Call<Location> call, Response<Location> response) {
@@ -336,25 +341,6 @@ public class HomeFragment extends Fragment {
                             dataHistory.add(0, fetchAttnedance);
                             Log.d(TAG, "onResponse: dataset size after : "+dataHistory.size());
                             attendanceHistoryAdapter.notifyDataSetChanged();
-
-                            // Create an Intent for the Service you want to start
-                            Intent serviceIntent = new Intent(getContext(), LocationService.class);
-
-                            // Create a PendingIntent to start the service
-                            PendingIntent pendingIntent = PendingIntent.getService(getContext(), 0, serviceIntent, FLAG_MUTABLE);
-
-                            // Get an instance of AlarmManager
-                            AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-
-                            // Set the interval for the alarm
-                            long intervalMillis = 1000; // 15 minutes in milliseconds
-
-                            // Calculate the time when the first alarm should trigger
-                            long triggerTime = System.currentTimeMillis();
-
-                            // Set the alarm using AlarmManager
-                            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, triggerTime, intervalMillis, pendingIntent);
-
                         }
 
                         @Override
