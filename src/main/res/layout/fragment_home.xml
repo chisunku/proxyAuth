@@ -143,25 +143,27 @@
                         android:layout_marginStart="9dp"
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="9dp"
+                        android:layout_marginBottom="10dp"
                         android:gravity="left"
                         android:text="Check In"
                         android:textColor="@color/black"
                         android:textSize="19dp"
+                        app:layout_constraintBottom_toTopOf="@+id/checkInTime"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toEndOf="@+id/imageView"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.3" />
 
                     <TextView
                         android:id="@+id/checkInTime"
                         android:layout_width="107dp"
                         android:layout_height="21dp"
-                        android:layout_marginStart="29dp"
+                        android:layout_marginStart="27dp"
                         android:layout_marginTop="19dp"
-                        android:layout_marginEnd="34dp"
                         android:text="Time"
                         android:textColor="@color/black"
                         android:textSize="18dp"
-                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
@@ -223,25 +225,27 @@
                         android:layout_marginStart="9dp"
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="9dp"
+                        android:layout_marginBottom="10dp"
                         android:gravity="left"
                         android:text="Check Out"
                         android:textColor="@color/black"
                         android:textSize="19dp"
+                        app:layout_constraintBottom_toTopOf="@+id/checkOutTime"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toEndOf="@+id/imageView2"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.3" />
 
                     <TextView
                         android:id="@+id/checkOutTime"
                         android:layout_width="113dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="29dp"
+                        android:layout_marginStart="27dp"
                         android:layout_marginTop="19dp"
-                        android:layout_marginEnd="28dp"
                         android:text="Time"
                         android:textColor="@color/black"
                         android:textSize="18dp"
-                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
@@ -249,7 +253,7 @@
                         android:id="@+id/checkOutDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="36dp"
+                        android:layout_marginStart="27dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="36dp"
                         android:text="Not checked out"

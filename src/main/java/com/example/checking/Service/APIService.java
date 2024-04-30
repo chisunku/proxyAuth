@@ -11,6 +11,7 @@ import java.util.List;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
@@ -44,7 +45,7 @@ public interface APIService {
     Call<List<Attendance>> getUserAttendance(@Query("email") String email);
 
     @GET("/isUserInsideAnyOffice")
-    Call<Location> checkLocation(@Query("latitude") double latitude, @Query("longitude") double longitude);
+    Call<Location> checkLocation(@Query("latitude") double latitude, @Query("longitude") double longitude, @Query("email") String email);
 
     @POST("/registerEmp")
     Call<Employee> registerEmp(@Body Employee employee);
@@ -118,6 +119,9 @@ public interface APIService {
     @Multipart
     @POST("/addEmployees")
     Call<Boolean> addEmployees(@Part MultipartBody.Part file, @Part("name") String name);
+
+    @POST("updateUserLocation")
+    Call<String> updateUserLocation(@Query("email") String email, @Query("latitude") double latitude, @Query("longitude") double longitude);
 
 }
 

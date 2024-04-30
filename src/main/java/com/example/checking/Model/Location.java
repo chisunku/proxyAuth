@@ -1,4 +1,6 @@
 package com.example.checking.Model;
+import com.google.android.gms.maps.SupportMapFragment;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -8,6 +10,16 @@ public class Location implements Serializable {
     private String address;
     private String name;
     private List<Point> polygon;
+
+    public SupportMapFragment getMapFragment() {
+        return mapFragment;
+    }
+
+    public void setMapFragment(SupportMapFragment mapFragment) {
+        this.mapFragment = mapFragment;
+    }
+
+    SupportMapFragment mapFragment;
 
     public String getAddress() {
         return address;
@@ -40,6 +52,8 @@ public class Location implements Serializable {
         this.id = id;
     }
 
+
+
     public static class Point implements Serializable {
         private double latitude;
         private double longitude;
@@ -64,5 +78,8 @@ public class Location implements Serializable {
         public void setLongitude(double longitude) {
             this.longitude = longitude;
         }
+
+
+
     }
 }
