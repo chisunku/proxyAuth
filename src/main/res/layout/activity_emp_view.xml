@@ -16,7 +16,6 @@
             android:text="Employees"
             android:textSize="30sp"
             android:textColor="@color/black"
-            android:textStyle="bold"
             android:layout_weight="2"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"/>

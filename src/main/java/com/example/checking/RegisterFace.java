@@ -128,13 +128,15 @@ public class RegisterFace extends MLVideoHelperActivity implements FaceRecogniti
         View dialogView = inflater.inflate(R.layout.add_face_dialog, null);
         ((ImageView) dialogView.findViewById(R.id.dlg_image)).setImageBitmap(tempBitmap);
 
+        View root = this.findViewById(android.R.id.content);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView);
         builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d("register the user in facerec", "coming into the if");
-                faceRecognitionProcessor.registerFace(employee, body, tempVector, getApplicationContext());
+                faceRecognitionProcessor.registerFace(employee, body, tempVector, RegisterFace.this, root);
             }
         });
         builder.show();

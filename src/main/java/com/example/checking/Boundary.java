@@ -55,6 +55,7 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
     View view;
     List<Location> dataList;
     LocationAdapter productAdapter;
+    Boolean admin;
     private void initializePlaces() {
         if (!Places.isInitialized()) {
             Places.initialize(getContext(), "AIzaSyAHNqB-5OeXeVss95CwnVO7IFjKbJe7mzE");
@@ -64,6 +65,8 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_maps, parent, false);
+        Bundle bundle = getArguments();
+        admin = bundle != null ? bundle.getBoolean("admin") : false;
         initializePlaces();
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -125,23 +128,13 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
 
         UiSettings uiSettings = mMap.getUiSettings();
-        // Enable or disable desired UI settings
-        uiSettings.setZoomControlsEnabled(true); // Show zoom controls
-        uiSettings.setCompassEnabled(true); // Show compass
-        uiSettings.setZoomGesturesEnabled(true); // Enable zoom gestures
-        uiSettings.setScrollGesturesEnabled(true); // Enable pinch-to-zoom
-
-//        UiSettings uiSettings = mMap.getUiSettings();
-//        // Enable or disable desired UI settings
-////        uiSettings.setZoomControlsEnabled(true); // Show zoom controls
-//        uiSettings.setCompassEnabled(true); // Show compass
-//        uiSettings.setZoomGesturesEnabled(true);
-////        uiSettings.setMyLocationButtonEnabled(true); // Show my location button
+        uiSettings.setZoomControlsEnabled(true);
+        uiSettings.setCompassEnabled(true);
+        uiSettings.setZoomGesturesEnabled(true);
+        uiSettings.setScrollGesturesEnabled(true);
         mMap.setOnMapClickListener(latLng -> {
-            // Add the clicked point to the polygon
             polygonPoints.add(latLng);
             Log.d("TAG", "polygone looks like : "+polygonPoints);
-            // Draw the Delaunay triangulation polygon
             drawDelaunayPolygon();
         });
     }
@@ -170,6 +163,7 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
 
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("dataList", (Serializable) dataList);
+                        bundle.putBoolean("admin", admin);
                         fragment.setArguments(bundle);
 
                         FragmentManager fragmentManager = getFragmentManager();

@@ -22,6 +22,16 @@
             android:background="@color/white"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OFFICE LOCATIONS"
+                android:textColor="@color/black"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:textSize="30dp"
+                android:layout_marginBottom="10dp" />
+
             <!-- ProgressBar -->
             <ProgressBar
                 android:id="@+id/loadingLayout"

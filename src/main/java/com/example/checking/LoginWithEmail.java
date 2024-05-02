@@ -73,6 +73,9 @@ public class LoginWithEmail extends AppCompatActivity {
                         public void onFailure(Call<Employee> call, Throwable t) {
                             // Handle network errors
                             System.out.println("error Auth with email: " + t.fillInStackTrace());
+                            Toast.makeText(getApplicationContext(), "Error! This is not your primary phone. Please login with your primary phone or reach out to the admin.", Toast.LENGTH_LONG).show();
+                            Intent i = new Intent(getApplicationContext(), Authentication.class);
+                            startActivity(i);
                         }
                     });
                 }
@@ -98,6 +101,9 @@ public class LoginWithEmail extends AppCompatActivity {
                         public void onFailure(Call<Employee> call, Throwable t) {
                             // Handle network errors
                             System.out.println("error Auth with email: " + t.fillInStackTrace());
+                            Toast.makeText(getApplicationContext(), "Error! This is not your primary phone. Please login with your primary phone or reach out to the admin.", Toast.LENGTH_LONG).show();
+                            Intent i = new Intent(getApplicationContext(), Authentication.class);
+                            startActivity(i);
                         }
                     });
                 }

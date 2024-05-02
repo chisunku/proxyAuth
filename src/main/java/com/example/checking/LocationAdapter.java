@@ -46,13 +46,14 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.handle
     public List<Location> locationModelArrayList;
     FragmentManager fragmentManager;
 
-    public LocationAdapter(Context context){this.context = context;}
+    Boolean admin;
 
     // Constructor
-    public LocationAdapter(Context context, List<Location> locationModelArrayList, FragmentManager fragmentManager) {
+    public LocationAdapter(Context context, List<Location> locationModelArrayList, FragmentManager fragmentManager, Boolean admin) {
         this.context = context;
         this.locationModelArrayList = locationModelArrayList;
         this.fragmentManager = fragmentManager;
+        this.admin = admin;
     }
 
     @NonNull
@@ -70,19 +71,19 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.handle
         Location model = locationModelArrayList.get(position);
         holder.locationAddress.setText(model.getAddress());
         holder.locationCity.setText("" + model.getName());
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(holder.map.getVisibility() == View.GONE) {
-                  //view map dynamically
-                    holder.map.setVisibility(View.VISIBLE);
-                    LiveTracking(model, holder.map);
-                }else{
-                    //hide map
-                    holder.map.setVisibility(View.GONE);
+            holder.cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (holder.map.getVisibility() == View.GONE) {
+                        //view map dynamically
+                        holder.map.setVisibility(View.VISIBLE);
+                        LiveTracking(model, holder.map);
+                    } else {
+                        //hide map
+                        holder.map.setVisibility(View.GONE);
+                    }
                 }
-            }
-        });
+            });
     }
 
     GoogleMap mMap;
@@ -99,7 +100,9 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.handle
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
                 drawPolygon(polygon);
-                addLocationMarkers();
+                if(admin) {
+                    addLocationMarkers();
+                }
             }
         });
     }
