@@ -48,7 +48,7 @@ public class LocationService extends Service {
     private FragmentChangeListener fragmentChangeListener;
 
     public void setFragmentChangeListener(FragmentChangeListener listener) {
-        fragmentChangeListener = listener;
+        this.fragmentChangeListener = listener;
     }
 
     @Override
@@ -169,17 +169,37 @@ public class LocationService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent,
                 PendingIntent.FLAG_IMMUTABLE);
-        NotificationCompat.Builder builder = new
-                NotificationCompat.Builder(this, "10")
+
+        // Create a notification channel if running on Android Oreo or higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    "10",
+                    "Location Service Channel",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+        }
+
+        // Build the notification
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "10")
                 .setContentTitle("Location Service")
-                .setContentText("Getting location updates")
+                .setContentText("Service is running")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Log.d(TAG, "getNotification: inside notification if condition");
-//            builder.build().setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
-        }
+
         return builder.build();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: Service stopped");
+        if (locationManager != null && locationListener != null && fragmentChangeListener!=null) {
+            // Remove location updates to stop receiving location updates
+            locationManager.removeUpdates(locationListener);
+            fragmentChangeListener.checkoutFronService();
+        }
     }
 }

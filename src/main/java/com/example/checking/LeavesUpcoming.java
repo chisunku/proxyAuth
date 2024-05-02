@@ -42,6 +42,10 @@ public class LeavesUpcoming extends Fragment {
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_leaves_type, container, false);
+
+        TextView heading = view.findViewById(R.id.heading);
+        heading.setVisibility(View.GONE);
+
         Log.d("TAG", "onCreateView: Inside upcoming leaves fragment");
         Bundle bundle = getArguments();
         Employee employee = (Employee) bundle.getSerializable("employee");

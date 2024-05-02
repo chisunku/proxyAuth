@@ -75,6 +75,7 @@ public class Authentication extends AppCompatActivity {
 
     private boolean isSharedPreferencesEmpty() {
         // Check if any data is stored in shared preferences
+        Log.d("TAG", "isSharedPreferencesEmpty: "+sharedPreferences.getAll());
         return sharedPreferences.getAll().isEmpty();
     }
 

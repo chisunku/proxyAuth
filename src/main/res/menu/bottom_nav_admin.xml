@@ -1,10 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/home"
-        android:enabled="true"
-        android:icon="@drawable/home"
-        android:title="Home"/>
-    <item
         android:id="@+id/location"
         android:enabled="true"
         android:icon="@drawable/location_hollow"
@@ -18,5 +13,10 @@
         android:id="@+id/profile"
         android:enabled="true"
         android:icon="@drawable/person_foreground"
-        android:title="Profile"/>
+        android:title="Employee"/>
+    <item
+        android:id="@+id/logout"
+        android:enabled="true"
+        android:icon="@drawable/log_out_foreground"
+        android:title="Logout"/>
 </menu>

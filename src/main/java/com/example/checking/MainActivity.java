@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.checking.Model.Attendance;
 import com.example.checking.Model.Employee;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -49,12 +50,18 @@ public class MainActivity extends AppCompatActivity{
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         if(admin){
-            LiveTracking fragment = new LiveTracking();
+            navigationView.inflateMenu(R.menu.bottom_nav_admin);
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("admin", admin);
+            LocationListView fragment = new LocationListView();
+            fragment.setArguments(bundle);
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.content, fragment, "main");
+            fragmentTransaction.replace(R.id.content, fragment, "");
+            fragmentTransaction.addToBackStack("location");
             fragmentTransaction.commit();
         }
         else {
+            navigationView.inflateMenu(R.menu.bottom_nav);
             HomeFragment fragment = new HomeFragment();
             Bundle bundle = new Bundle();
             bundle.putSerializable("Employee", employee);
@@ -176,7 +183,10 @@ public class MainActivity extends AppCompatActivity{
             return true;
         }
         else if (itemId == R.id.location) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("admin", admin);
             LocationListView fragment = new LocationListView();
+            fragment.setArguments(bundle);
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.content, fragment, "");
             fragmentTransaction.addToBackStack("location");
@@ -206,11 +216,12 @@ public class MainActivity extends AppCompatActivity{
                 return true;
             }
         }
-        // It will help to replace the
-        // one fragment to other.
-//        if (selectedFragment != null) {
-//            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
-//        }
+        else if(itemId == R.id.logout){
+            Intent intent = new Intent(MainActivity.this, Authentication.class);
+            startActivity(intent);
+            finish();
+            return true;
+        }
         return false;
     };
 }

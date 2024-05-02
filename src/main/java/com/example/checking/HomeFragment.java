@@ -76,9 +76,11 @@ public class HomeFragment extends Fragment implements FragmentChangeListener {
     //Service
     Intent serviceIntent;
 
+    View view;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, parent, false);
+        view = inflater.inflate(R.layout.fragment_home, parent, false);
 
         loadingProgressBar = view.findViewById(R.id.attendanceLoading);
         Log.d(TAG, "onCreateView: homefragment");
@@ -103,6 +105,10 @@ public class HomeFragment extends Fragment implements FragmentChangeListener {
         //Service
         serviceIntent = new Intent(getContext(), LocationService.class);
 
+        LocationService locationService = new LocationService();
+        locationService.setFragmentChangeListener(this); // Assuming HomeFragment implements FragmentChangeListener
+
+
         //fetch attendance
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
         Call<Attendance> call = apiService.getLatestRecord(employee.getEmail());
@@ -122,6 +128,7 @@ public class HomeFragment extends Fragment implements FragmentChangeListener {
                         time.setText(localDateTime.toLocalDate()+" @ "+localDateTime.getHour()+":"+String.format("%02d", localDateTime.getMinute()));
                         TextView blockName = view.findViewById(R.id.checkInBoxName);
                         blockName.setText("Checked In @ "+fetchAttnedance.getLocationsModel().getName());
+                        getContext().startService(serviceIntent);
 
                         if(fetchAttnedance.getCheckOutDate()!=null){
                             checkOut.setEnabled(false);
@@ -257,6 +264,10 @@ public class HomeFragment extends Fragment implements FragmentChangeListener {
     }
 
     @Override
+    public void checkoutFronService(){
+        checkout(view);
+    }
+
     public void checkout(View view){
         getContext().stopService(serviceIntent);
         Log.d(TAG, "checkout: stop service called");
@@ -351,7 +362,7 @@ public class HomeFragment extends Fragment implements FragmentChangeListener {
 
                 } else {
                     // Handle unsuccessful response
-                    System.out.println("something went wrong in finding location");
+                    System.out.println("something went wrong in finding location : "+response);
                 }
             }
 

@@ -66,7 +66,7 @@ public class LocationListView extends Fragment{
                     dataList = response.body();
                     System.out.println("location list : "+dataList);
                     FragmentManager fragmentManager = getFragmentManager();
-                    productAdapter = new LocationAdapter(getContext(), dataList, fragmentManager);
+                    productAdapter = new LocationAdapter(getContext(), dataList, fragmentManager, admin);
                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.VERTICAL, false);
                     courseRV.setLayoutManager(linearLayoutManager);
                     courseRV.setAdapter(productAdapter);
@@ -92,6 +92,10 @@ public class LocationListView extends Fragment{
                 public void onClick(View view) {
                     Boundary fragment = new Boundary();
                     fragment.fetchAdapeter(productAdapter, dataList);
+
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("admin", admin);
+                    fragment.setArguments(bundle);
 
                     FragmentManager fragmentManager = getFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

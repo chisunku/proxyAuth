@@ -12,17 +12,23 @@ import android.graphics.Rect;
 import android.text.Editable;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.view.PreviewView;
 
 import com.example.checking.Authentication;
 import com.example.checking.Model.Employee;
 import com.example.checking.Model.FaceModel;
+import com.example.checking.R;
 import com.example.checking.RegisterFace;
+import com.example.checking.Registration;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
 import com.example.checking.helpers.vision.FaceGraphic;
@@ -32,6 +38,7 @@ import com.example.checking.FaceRecognition;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.gson.Gson;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
@@ -271,7 +278,23 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
     }
 
     // Register a name against the vector
-    public void registerFace(Employee employee, MultipartBody.Part file, float[] tempVector, Context content) {
+    public void registerFace(Employee employee, MultipartBody.Part file, float[] tempVector, Context content, View view) {
+
+        ProgressBar progressBar = view.findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.VISIBLE);
+
+        TextView tv = view.findViewById(R.id.output_text_view);
+        tv.setVisibility(View.GONE);
+
+        PreviewView pv = view.findViewById(R.id.camera_source_preview);
+        pv.setVisibility(View.GONE);
+
+        com.example.checking.helpers.vision.GraphicOverlay go = view.findViewById(R.id.graphic_overlay);
+        go.setVisibility(View.GONE);
+
+        ExtendedFloatingActionButton btn = view.findViewById(R.id.button_add_face);
+        btn.setVisibility(View.GONE);
+
         FaceModel face = new FaceModel(employee.getName().toString(), tempVector);
 //        recognisedFaceList.add(face);
         employee.setFace(face);
@@ -305,6 +328,12 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
                         public void onResponse(Call<Employee> call, Response<Employee> response) {
                             Log.d(TAG, "onResponse: response on employee save : "+response.body());
 
+                            if(response.code()!=200 && response.body()==null){
+
+                                Intent i = new Intent(content, Registration.class);
+                                content.startActivity(i);
+                            }
+
                             if(response!=null && response.body()!=null){
                                 Intent i = new Intent(content, Authentication.class);
                                 i.putExtra("employee", employee);
@@ -333,31 +362,6 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
                 Log.d(TAG, "onFailure: failed to register emp: "+t.getMessage()+" "+t.fillInStackTrace()+" "+t.getStackTrace());
             }
         });
-        
-//        Call<String> call = apiService.test();
-//        call.enqueue(new Callback<String>() {
-//            @Override
-//            public void onResponse(Call<String> call, Response<String> response) {
-//                Log.d(TAG, "onResponse: called!! "+response.message()+" "+response.body());
-//                SharedPreferences sharedPreferences = content.getSharedPreferences("proxyAuth", Context.MODE_PRIVATE);
-//                String userId;
-//                if (sharedPreferences.getAll().isEmpty()) {
-//                    userId = UUID.randomUUID().toString();
-//                    SharedPreferences.Editor editor = sharedPreferences.edit();
-//                    editor.putString("UUID", userId);
-//                    editor.apply();
-//                    employee.setUserId(userId);
-//                }
-//                Intent i = new Intent(content, Authentication.class);
-//                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                content.startActivity(i);
-//            }
-//
-//            @Override
-//            public void onFailure(Call<String> call, Throwable t) {
-//                Log.d(TAG, "onFailure: not called!!");
-//            }
-//        });
         
     }
 }

@@ -37,19 +37,18 @@
             app:itemIconTint="@android:color/white"
             android:layout_marginEnd="16dp"
             app:itemRippleColor="@android:color/white"
-            app:itemTextColor="@android:color/white"
-            app:menu="@menu/bottom_nav" />
+            app:itemTextColor="@android:color/white" />
 
     </com.google.android.material.bottomappbar.BottomAppBar>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:src="@drawable/insights"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#70ACD8"
-        app:layout_anchor="@id/bottomBar"
-        app:layout_anchorGravity="center"/>
+<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--        android:id="@+id/fab"-->
+<!--        android:src="@drawable/insights"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:backgroundTint="#70ACD8"-->
+<!--        app:layout_anchor="@id/bottomBar"-->
+<!--        app:layout_anchorGravity="center"/>-->
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
