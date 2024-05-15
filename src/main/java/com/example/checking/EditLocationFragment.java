@@ -8,13 +8,17 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
-import com.example.checking.Model.LocationsModel;
+import com.example.checking.Model.Employee;
+import com.example.checking.Model.Location;
+import com.example.checking.Service.APIService;
+import com.example.checking.Service.RetrofitClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
@@ -22,15 +26,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class EditLocationFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
-    List<LocationsModel.Point> polygon;
+    List<Location.Point> polygon;
+    Location loc;
+    APIService apiService;
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_location, parent, false);
         Bundle args = getArguments();
-        LocationsModel loc = (LocationsModel) args.getSerializable("loc");
+        loc = (Location) args.getSerializable("loc");
         System.out.println("Name: "+loc.getName());
         polygon = loc.getPolygon();
+
+        apiService = RetrofitClient.getClient().create(APIService.class);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment == null) {
@@ -45,14 +57,41 @@ public class EditLocationFragment extends Fragment implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-            // Draw polygon on the map
-            drawPolygon(polygon);
+        // Draw polygon on the map
+        drawPolygon(polygon);
 
-            // Move camera to the bounds of the polygon
-            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getPolygonBounds(polygon), 50));
+        // Move camera to the bounds of the polygon
+        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getPolygonBounds(polygon), 50));
+
+        // Add markers for user locations
+        addLocationMarkers();
     }
 
-    private void drawPolygon(List<LocationsModel.Point> polygonPoints) {
+    private void addLocationMarkers() {
+
+        Call<List<Employee>> call = apiService.getAllEmployees();
+        call.enqueue(new Callback<List<Employee>>() {
+            @Override
+            public void onResponse(Call<List<Employee>> call, Response<List<Employee>> response) {
+                if (response.isSuccessful()) {
+                    List<Employee> employees = response.body();
+                    for (Employee employee : employees) {
+                        if(employee.getLatitude()!=0 && employee.getLongitude()!=0) {
+                            LatLng latLng = new LatLng(employee.getLatitude(), employee.getLongitude());
+                            mMap.addMarker(new MarkerOptions().position(latLng).title(employee.getName()));
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Employee>> call, Throwable throwable) {
+
+            }
+        });
+    }
+
+    private void drawPolygon(List<Location.Point> polygonPoints) {
         if (polygonPoints.size() >= 3) {
             List<LatLng> latLngs = sortPointsClockwise(polygonPoints);
 
@@ -65,10 +104,10 @@ public class EditLocationFragment extends Fragment implements OnMapReadyCallback
         }
     }
 
-    private List<LatLng> sortPointsClockwise(List<LocationsModel.Point> points) {
+    private List<LatLng> sortPointsClockwise(List<Location.Point> points) {
         // Calculate the centroid of the points
         double cx = 0, cy = 0;
-        for (LocationsModel.Point point : points) {
+        for (Location.Point point : points) {
             cx += point.getLatitude();
             cy += point.getLongitude();
         }
@@ -86,7 +125,7 @@ public class EditLocationFragment extends Fragment implements OnMapReadyCallback
 
         // Convert to LatLng and return
         List<LatLng> sortedLatLngs = new ArrayList<>();
-        for (LocationsModel.Point point : points) {
+        for (Location.Point point : points) {
             sortedLatLngs.add(new LatLng(point.getLatitude(), point.getLongitude()));
         }
         return sortedLatLngs;
@@ -94,9 +133,9 @@ public class EditLocationFragment extends Fragment implements OnMapReadyCallback
 
 
 
-    private LatLngBounds getPolygonBounds(List<LocationsModel.Point> polygonPoints) {
+    private LatLngBounds getPolygonBounds(List<Location.Point> polygonPoints) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (LocationsModel.Point point : polygonPoints) {
+        for (Location.Point point : polygonPoints) {
             builder.include(new LatLng(point.getLatitude(), point.getLongitude()));
         }
         return builder.build();

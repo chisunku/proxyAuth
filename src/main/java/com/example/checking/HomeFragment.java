@@ -1,74 +1,395 @@
 package com.example.checking;
 
+import static android.app.PendingIntent.FLAG_MUTABLE;
+import static android.app.ProgressDialog.show;
+
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.checking.Model.AttendanceModel;
-import com.example.checking.Model.LocationsModel;
+import com.example.checking.Model.Attendance;
+import com.example.checking.Model.Employee;
+import com.example.checking.Model.Location;
 import com.example.checking.Service.APIService;
+import com.example.checking.Service.FragmentChangeListener;
 import com.example.checking.Service.RetrofitClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements FragmentChangeListener {
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private FirebaseFirestore db;
     private LatLng userLocation;
-    ArrayList<AttendanceModel> courseModelArrayList;
-
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
-    RecyclerView coursesGV;
     RecyclerView history;
-    String checkintime = "not Checked in";
-    String checkoutTime = "not Checked out";
+    List<Attendance> dataHistory;
+    AttendanceHistoryAdapter attendanceHistoryAdapter;
+    CardView checkin;
+    CardView checkOut;
+    Attendance attendanceModel;
 
-    String checkinDate = "";
-    String checkoutDate = "";
-    List<AttendanceModel> dataHistory;
+    Attendance fetchAttnedance;
+    String TAG = "HomeFragment";
+    Employee employee;
+    private ProgressBar loadingProgressBar;
+
+    ImageView profile_image;
+    private PendingIntent pendingIntent;
+
+    //Service
+    Intent serviceIntent;
+
+    View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, parent, false);
-        db = FirebaseFirestore.getInstance();
+        view = inflater.inflate(R.layout.fragment_home, parent, false);
+
+        loadingProgressBar = view.findViewById(R.id.attendanceLoading);
+        Log.d(TAG, "onCreateView: homefragment");
+        //get employee
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            employee = (Employee) arguments.getSerializable("Employee");
+            if(employee == null)
+                Log.d(TAG, "onCreateView: yes emp is null");
+            Log.d(TAG, "onCreateView: emp name in fragment : "+employee.getImageURL());
+
+            //saving email in shared preference for the service to access
+            SharedPreferences.Editor editor = getActivity().getSharedPreferences("proxyAuth", Context.MODE_PRIVATE).edit();
+            editor.putString("email", employee.getEmail());
+            editor.apply();
+        }
+        else{
+            Log.d(TAG, "onCreateView: arguments is null");
+            getActivity().getFragmentManager().popBackStack();
+        }
+
+        //Service
+        serviceIntent = new Intent(getContext(), LocationService.class);
+
+        LocationService locationService = new LocationService();
+        locationService.setFragmentChangeListener(this); // Assuming HomeFragment implements FragmentChangeListener
+
+
+        //fetch attendance
+        APIService apiService = RetrofitClient.getClient().create(APIService.class);
+        Call<Attendance> call = apiService.getLatestRecord(employee.getEmail());
+        Log.d(TAG, "onCreateView: call fetch latest attendance: ");
+        call.enqueue(new Callback<Attendance>() {
+            @Override
+            public void onResponse(Call<Attendance> call, Response<Attendance> response) {
+                System.out.println("response of fetch latest : "+response);
+                if (response.isSuccessful()) {
+                    fetchAttnedance = response.body();
+                    Log.d(TAG, "onResponse: latest attendance : "+fetchAttnedance.getEmail()+" "+fetchAttnedance.getLocationsModel().getName());
+                    if(fetchAttnedance!=null){
+                        checkin.setEnabled(false);
+                        TextView time = view.findViewById(R.id.checkInDate);
+                        Instant instant = fetchAttnedance.getCheckInDate().toInstant();
+                        LocalDateTime localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                        time.setText(localDateTime.toLocalDate()+" @ "+localDateTime.getHour()+":"+String.format("%02d", localDateTime.getMinute()));
+                        TextView blockName = view.findViewById(R.id.checkInBoxName);
+                        blockName.setText("Checked In @ "+fetchAttnedance.getLocationsModel().getName());
+                        getContext().startService(serviceIntent);
+
+                        if(fetchAttnedance.getCheckOutDate()!=null){
+                            checkOut.setEnabled(false);
+                            time = view.findViewById(R.id.checkOutDate);
+                            instant = fetchAttnedance.getCheckOutDate().toInstant();
+                            localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                            time.setText(localDateTime.toLocalDate()+" @ "+localDateTime.getHour()+":"+String.format("%02d", localDateTime.getMinute()));
+                            blockName = view.findViewById(R.id.CheckOutBoxName);
+                            blockName.setText("Checked out");
+                        }
+                        else{
+                            checkOut.setEnabled(true);
+                        }
+                    }
+                    else{
+                        checkOut.setEnabled(false);
+                    }
+                } else {
+                    System.out.println("API has no response");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Attendance> call, Throwable t) {
+                // Handle network errors
+                System.out.println("error in fetch latest attendance: " + call.toString()+" :: "+t.fillInStackTrace()+" "+t.getStackTrace()+" "+t.getMessage());
+            }
+        });
+
+//        Drawable d = LoadImageFromWebOperations(employee.getImageURL());
+//        Log.d(TAG, "onCreateView: drawable " + d.toString());
+//        profile_image.setImageDrawable(d);
+
+        //image from url
+        profile_image = view.findViewById(R.id.profile_image);
+        Picasso.get()
+                .load(employee.getImageURL())
+                .into(profile_image);
+        TextView name = view.findViewById(R.id.name);
+        name.setText(employee.getName());
+
+        TextView designation = view.findViewById(R.id.designation);
+        designation.setText(employee.getDesignation());
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
         requestLastLocation();
-        System.out.println("userLocation : " + userLocation);
-        new AttendanceHistory().execute();
-        new FetchDataAsyncTask().execute();
-        coursesGV = view.findViewById(R.id.idGVcourses);
+        Log.d(TAG, "onCreateView: userLocation : " + userLocation);
+        fetchAttendanceHistory();
+        attendanceHistory();
         history = view.findViewById(R.id.attendanceHistory);
+        checkin = view.findViewById(R.id.checkinBoxCardView);
+
+        final ActivityResultLauncher<Intent> faceRecognitionLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                        result -> {
+                            if (result.getResultCode() == Activity.RESULT_OK) {
+                                // Handle the result, for example, call checkLogIn
+                                Log.d(TAG, "onCreateView: in after the face rec thing");
+                                checkLogIn(getView());
+                            }
+                        });
+        checkin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: employee name in homefragment "+employee.getEmail());
+                Intent intent = new Intent(getActivity(), FaceRecognition.class);
+                intent.putExtra("Employee", employee);
+                faceRecognitionLauncher.launch(intent);
+            }
+        });
+
+
+        checkOut = view.findViewById(R.id.checkoutBoxCardView);
+        checkOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkout(view);
+            }
+        });
         return view;
+    }
+
+    public static Drawable LoadImageFromWebOperations(String url) {
+        System.out.println("image url in convert to drawable : "+url);
+        try {
+            InputStream is = (InputStream) new URL(url).getContent();
+            Drawable d = Drawable.createFromStream(is, "src name");
+            if(d == null)
+                Log.d("TAG", "LoadImageFromWebOperations: drawable is null");
+            else{
+                Log.d("TAG", "LoadImageFromWebOperations: drawable : "+d.toString());
+            }
+            return d;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void attendanceHistory(){
+        APIService apiService = RetrofitClient.getClient().create(APIService.class);
+        Call<List<Attendance>> call = apiService.getUserAttendance(employee.getEmail());
+        System.out.println("call : ");
+        call.enqueue(new Callback<List<Attendance>>() {
+            @Override
+            public void onResponse(Call<List<Attendance>> call, Response<List<Attendance>> response) {
+                loadingProgressBar.setVisibility(View.GONE);
+                System.out.println("response: "+response);
+                if (response.isSuccessful()) {
+                    dataHistory = response.body();
+                    System.out.println("location list : "+dataHistory);
+                    FragmentManager fragmentManager = getFragmentManager();
+                    attendanceHistoryAdapter = new AttendanceHistoryAdapter(getContext(), dataHistory);
+                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(),
+                            LinearLayoutManager.VERTICAL, false);
+
+                    // in below two lines we are setting layoutmanager and adapter to our recycler view.
+                    history.setLayoutManager(linearLayoutManager);
+                    history.setAdapter(attendanceHistoryAdapter);
+                    // Handle the list of AttendanceModel objects
+                } else {
+                    System.out.println("API has no response");
+                    // Handle unsuccessful response
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Attendance>> call, Throwable t) {
+                // Handle network errors
+                System.out.println("error: " + t.fillInStackTrace());
+            }
+        });
+    }
+
+    @Override
+    public void checkoutFronService(){
+        checkout(view);
+    }
+
+    public void checkout(View view){
+        getContext().stopService(serviceIntent);
+        Log.d(TAG, "checkout: stop service called");
+        APIService apiService = RetrofitClient.getClient().create(APIService.class);
+        // Get the current date and time as LocalDateTime
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        // Convert LocalDateTime to Instant
+        Instant instant = currentDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+        // Convert Instant to Date
+        Date date = Date.from(instant);
+
+        fetchAttnedance.setCheckOutDate(date);
+        Call<Attendance> saveCall = apiService.checkout(fetchAttnedance);
+        saveCall.enqueue(new Callback<Attendance>(){
+            @Override
+            public void onResponse(Call<Attendance> call, Response<Attendance> response) {
+                Attendance att = response.body();
+                System.out.println("response : "+response);
+                TextView time = view.findViewById(R.id.checkOutDate);
+                time.setText(currentDateTime.toLocalDate()+" @ "+currentDateTime.getHour()+":"+currentDateTime.getMinute());
+                TextView boxName = view.findViewById(R.id.CheckOutBoxName);
+                boxName.setText("Checked Out");
+                dataHistory.get(0).setCheckOutDate(fetchAttnedance.getCheckOutDate());
+                attendanceHistoryAdapter.notifyDataSetChanged();
+
+                //checkout location
+                Call<Employee> callLoc = apiService.checkoutLocation(employee);
+                callLoc.enqueue(new Callback<Employee>() {
+                    @Override
+                    public void onResponse(Call<Employee> call, Response<Employee> response) {
+                        System.out.println("response of checkout location : "+response);
+                        Employee emp = response.body();
+                        System.out.println("emp location : "+emp.getLatitude()+" "+emp.getLongitude());
+                    }
+
+                    @Override
+                    public void onFailure(Call<Employee> call, Throwable throwable) {
+
+                    }
+                });
+
+            }
+
+            @Override
+            public void onFailure(Call<Attendance> call, Throwable t) {
+                System.out.println("failed to save checking: "+t.getStackTrace());
+            }
+        });
+    }
+
+    public void checkLogIn(View view){
+        getContext().startService(serviceIntent);
+
+        Log.d(TAG, "checkLogIn: in checkin");
+        APIService apiService = RetrofitClient.getClient().create(APIService.class);
+
+        Call<Location> call = apiService.checkLocation(userLocation.latitude, userLocation.longitude, employee.getEmail());
+        call.enqueue(new Callback<Location>() {
+            @Override
+            public void onResponse(Call<Location> call, Response<Location> response) {
+                if (response.isSuccessful()) {
+                    Location res = response.body();
+                    System.out.println("Attendance marked ? "+ res.getName());
+                    // Handle the list of AttendanceModel objects
+                    Toast.makeText(getContext(), "User Checked In @ "+res.getName(), Toast.LENGTH_SHORT).show();
+                    TextView time = view.findViewById(R.id.checkInDate);
+
+                    // Get the current date and time as LocalDateTime
+                    LocalDateTime currentDateTime = LocalDateTime.now();
+
+                    // Convert LocalDateTime to Instant
+                    Instant instant = currentDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+                    // Convert Instant to Date
+                    Date date = Date.from(instant);
+
+                    System.out.println("currentDateTime : " + " date : "+date);
+
+                    time.setText(currentDateTime.toLocalDate()+" @ "+currentDateTime.getHour()+":"+currentDateTime.getMinute());
+
+                    TextView blockName = view.findViewById(R.id.checkInBoxName);
+                    blockName.setText("Checked In @ "+res.getName());
+
+                    attendanceModel = new Attendance();
+                    attendanceModel.setLocationsModel(res);
+                    attendanceModel.setCheckInDate(date);
+                    attendanceModel.setEmail(employee.getEmail());
+//                    attendanceModel.setDate(date);
+                    fetchAttnedance = attendanceModel;
+                    Log.d(TAG, "onResponse: attendance location : "+attendanceModel.getLocationsModel().getName());
+                    Call<Attendance> saveCall = apiService.checkInUser(attendanceModel);
+                    saveCall.enqueue(new Callback<Attendance>(){
+                        @Override
+                        public void onResponse(Call<Attendance> call, Response<Attendance> response) {
+                            System.out.println("response checkin user : "+response+" msg : "+response.message()+" "+response.body());
+                            Log.d(TAG, "onResponse: dataset size: "+dataHistory.size());
+                            dataHistory.add(0, fetchAttnedance);
+                            Log.d(TAG, "onResponse: dataset size after : "+dataHistory.size());
+                            attendanceHistoryAdapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onFailure(Call<Attendance> call, Throwable t) {
+                            System.out.println("failed to save checking: "+t.getStackTrace());
+                        }
+                    });
+
+                } else {
+                    // Handle unsuccessful response
+                    System.out.println("something went wrong in finding location : "+response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Location> call, Throwable t) {
+                Log.e(TAG, "checkin error"+t.getMessage()+" "+call.toString());
+                // Handle network errors
+                System.out.println("error: "+t.getStackTrace());
+            }
+        });
     }
 
     private void requestLastLocation() {
@@ -81,6 +402,7 @@ public class HomeFragment extends Fragment {
                             System.out.println("in if --> if");
                             userLocation = new LatLng(location.getLatitude(), location.getLongitude());
                             System.out.println("location : " + userLocation);
+//                            checkLogIn();
                         }
                     })
                     .addOnFailureListener(e -> {
@@ -88,6 +410,7 @@ public class HomeFragment extends Fragment {
                     });
         } else {
             ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            Log.d(TAG, "requestLastLocation: request not granted!!!");
         }
     }
 
@@ -117,118 +440,27 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public class AttendanceHistory extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            // Perform your Firestore query here
-            CollectionReference dataCollection = db.collection("attendance");
-
-            Task<QuerySnapshot> task = dataCollection.get();
-
-            try {
-                // Block on the task to retrieve the result synchronously
-                Tasks.await(task);
-
-                if (task.isSuccessful()) {
-                    dataHistory = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        AttendanceModel data = document.toObject(AttendanceModel.class);
-                        System.out.println("data : "+data.getDate()+" "+data.getEmail());
-                        dataHistory.add(data);
-                    }
-                    System.out.println("data size : "+ dataHistory.size());
+    public void fetchAttendanceHistory(){
+        APIService apiService = RetrofitClient.getClient().create(APIService.class);
+        Call<List<Attendance>> call = apiService.getUserAttendance(employee.getEmail());
+        System.out.println("call : ");
+        call.enqueue(new Callback<List<Attendance>>() {
+            @Override
+            public void onResponse(Call<List<Attendance>> call, Response<List<Attendance>> response) {
+                System.out.println("response: "+response);
+                if (response.isSuccessful()) {
+                    dataHistory = response.body();
+                    System.out.println("location list : "+dataHistory);
                 } else {
-                    // Handle errors
-                    Exception e = task.getException();
-                    if (e != null) {
-                        e.printStackTrace();
-                    }
+                    System.out.println("API has no response");
                 }
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
             }
-            return null;
-        }
 
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-            if (dataHistory != null) {
-                // Update UI with the fetched data
-                System.out.println("in the if "+dataHistory.size());
-                AttendanceHistoryAdapter adapter = new AttendanceHistoryAdapter(getContext(), dataHistory);
-                history.setLayoutManager(new LinearLayoutManager(getContext()));
-                history.setAdapter(adapter);
-            } else {
-                // Handle the case where data retrieval failed
-                System.out.println("data : "+dataHistory);
-                Toast.makeText(getContext(), "Failed to retrieve attendance history", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onFailure(Call<List<Attendance>> call, Throwable t) {
+                // Handle network errors
+                System.out.println("error: " + t.fillInStackTrace());
             }
-        }
+        });
     }
-
-    public class FetchDataAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-            String CheckinBox = "Check In";
-            String CheckoutBox = "Check Out";
-            if(!checkintime.equals("not Checked in")){
-                CheckinBox = "Checked In";
-            }
-            if(!checkoutTime.equals("not Checked out")){
-                CheckoutBox = "Checked Out";
-            }
-            courseModelArrayList.add(new AttendanceModel("", checkintime ,CheckinBox, checkinDate, R.drawable.checkin));
-            courseModelArrayList.add(new AttendanceModel("", checkoutTime,CheckoutBox, checkoutDate, R.drawable.checkout));
-            FragmentManager fragmentManager = getFragmentManager();
-            attendace_recycler_adapter adapter1 = new attendace_recycler_adapter(getContext(), courseModelArrayList, fragmentManager, userLocation);
-            int spanCount = 2;
-            coursesGV.setLayoutManager(new GridLayoutManager(getContext(), spanCount));
-            coursesGV.setAdapter(adapter1);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            courseModelArrayList = new ArrayList<>();
-//            Timestamp today = new Timestamp(System.currentTimeMillis());
-//            SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM YY");
-//            String formattedDate = sdf1.format(today);
-            Date checkinTime = new Date();
-            System.out.println("formattedDate : " + checkinTime);
-            CollectionReference documentRef = db.collection("attendance");
-            try{
-                //call updateCheckIn API
-                APIService apiService = RetrofitClient.getClient().create(APIService.class);
-
-                Call<List<LocationsModel>> call = apiService.getAllLocations();
-
-                call.enqueue(new Callback<List<LocationsModel>>() {
-                    @Override
-                    public void onResponse(Call<List<LocationsModel>> call, Response<List<LocationsModel>> response) {
-                        if (response.isSuccessful()) {
-                            List<LocationsModel> attendanceList = response.body();
-                            System.out.println("location list : "+attendanceList);
-                            // Handle the list of AttendanceModel objects
-                        } else {
-                            // Handle unsuccessful response
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<LocationsModel>> call, Throwable t) {
-                        // Handle network errors
-                    }
-                });
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-    }
-
-
 }

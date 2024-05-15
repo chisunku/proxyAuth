@@ -7,6 +7,16 @@
     <item
         android:id="@+id/location"
         android:enabled="true"
-        android:icon="@drawable/location"
+        android:icon="@drawable/location_hollow"
         android:title="Locations"/>
+    <item
+        android:id="@+id/leave"
+        android:enabled="true"
+        android:icon="@drawable/leave_foreground"
+        android:title="Leave"/>
+    <item
+        android:id="@+id/profile"
+        android:enabled="true"
+        android:icon="@drawable/person_foreground"
+        android:title="Profile"/>
 </menu>

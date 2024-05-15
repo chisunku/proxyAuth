@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/auth_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="217dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="121dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="121dp"
+        android:background="@drawable/button"
+        android:text="Login"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/icon" />
+
+    <Button
+        android:id="@+id/biometric"
+        android:layout_width="217dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="97dp"
+        android:layout_marginTop="23dp"
+        android:layout_marginEnd="97dp"
+        android:background="@drawable/button"
+        android:text="Biometric"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login" />
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="123dp"
+        android:layout_height="143dp"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="120dp"
+        android:layout_marginEnd="144dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@mipmap/icon" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

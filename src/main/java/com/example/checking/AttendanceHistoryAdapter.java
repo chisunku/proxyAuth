@@ -1,5 +1,6 @@
 package com.example.checking;
         import android.content.Context;
+        import android.util.Log;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
@@ -10,22 +11,24 @@ package com.example.checking;
         import androidx.fragment.app.FragmentManager;
         import androidx.recyclerview.widget.RecyclerView;
 
-        import com.example.checking.Model.AttendanceModel;
+        import com.example.checking.Model.Attendance;
 
+        import java.text.SimpleDateFormat;
         import java.util.List;
+        import java.util.Locale;
 
 public class AttendanceHistoryAdapter extends RecyclerView.Adapter<AttendanceHistoryAdapter.handler> {
 
     private final Context context;
-    private List<AttendanceModel> locationModelArrayList;
+    private List<Attendance> locationModelArrayList;
     FragmentManager fragmentManager;
 
     // Constructor
-    public AttendanceHistoryAdapter(Context context, List<AttendanceModel> locationModelArrayList) {
+    public AttendanceHistoryAdapter(Context context, List<Attendance> locationModelArrayList) {
         this.context = context;
         this.locationModelArrayList = locationModelArrayList;
     }
-    public void setData(List<AttendanceModel> locationModelArrayList) {
+    public void setData(List<Attendance> locationModelArrayList) {
         this.locationModelArrayList = locationModelArrayList;
     }
 
@@ -42,34 +45,50 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<AttendanceHis
     public void onBindViewHolder(@NonNull AttendanceHistoryAdapter.handler holder, int position) {
         // to set data to textview and imageview of each card layout
         System.out.println("in adapter binder holder");
-        AttendanceModel model = locationModelArrayList.get(position);
-        holder.boxName.setText(model.getTimeRef());
-        holder.time.setText("" + model.getTime());
-        holder.img.setImageResource(model.getImgId());
-        holder.date.setText(model.getDate().toString());
+        Attendance model = locationModelArrayList.get(position);
+
+//        Log.d("atthistory", "onBindViewHolder atthistory: "+model+" "+model.getLocationsModel().getName());
+
+        // Create a SimpleDateFormat with the desired format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+
+        // Extract date and time
+        String formattedDate = dateFormat.format(model.getCheckInDate());
+        String formattedTime = timeFormat.format(model.getCheckInDate());
+
+        String time = "Check-in: "+ formattedTime;
+        if(model.getCheckOutDate()!=null){
+            formattedTime = timeFormat.format(model.getCheckOutDate());
+            time += "\n\nCheck-out: "+formattedTime;
+        }
+        holder.date.setText(time);
+        holder.time.setText(formattedDate);
+        holder.location.setText(model.getLocationsModel().getName());
     }
 
     @Override
     public int getItemCount() {
+        Log.d("attendance history adapter", "getItemCount: item count called : "+locationModelArrayList.size());
         return locationModelArrayList.size();
     }
 
     // View holder class for initializing of your views such as TextView and Imageview
     public static class handler extends RecyclerView.ViewHolder {
         //        private final ImageView courseIV;
-        private final TextView boxName;
+        private final TextView date;
+        private final TextView location;
         private final TextView time;
         private CardView cardView;
-        private TextView date;
         private ImageView img;
 
         public handler(View itemView) {
             super(itemView);
-            boxName = itemView.findViewById(R.id.type);
+            date = itemView.findViewById(R.id.date);
+            location = itemView.findViewById(R.id.location);
             time = itemView.findViewById(R.id.time);
             cardView = itemView.findViewById(R.id.card);
             img = itemView.findViewById(R.id.icon);
-            date = itemView.findViewById(R.id.date);
         }
     }
 }

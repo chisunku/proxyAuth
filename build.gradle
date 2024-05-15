@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'com.example.checking'
-    compileSdk 34
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.checking"
-        minSdk 30
-        targetSdk 34
+        minSdk 29
+        targetSdk 33
         versionCode 1
         versionName "1.0"
         buildConfigField("String", "API_KEY", API_KEY)
@@ -42,34 +42,66 @@ android {
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.libraries.places:places:3.0.0'
+    // https://mvnrepository.com/artifact/androidx.gridlayout/gridlayout
+    implementation 'androidx.gridlayout:gridlayout:1.0.0-rc01'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 
+    //material
+//    implementation "androidx.compose.material3:material3:1.2.1"
+//    implementation "androidx.compose.material3:material3-window-size-class:1.2.1"
+//    implementation "androidx.compose.material3:material3-adaptive-navigation-suite:1.0.0-alpha05"
+
     //boundary
     implementation 'com.google.maps.android:android-maps-utils:2.2.0'
     implementation 'com.google.android.gms:play-services-maps:18.2.0'
     implementation 'org.locationtech.jts:jts-core:1.18.0'
-
-    //firebase
-    // Import the BoM for the Firebase platform
-    implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
-    // Add the dependency for the Realtime Database library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation("com.google.firebase:firebase-database")
-    implementation 'com.google.firebase:firebase-firestore:24.9.1'
     
     //image view circular
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
-    // Java language implementation
+    // Biometric implementation
     implementation "androidx.biometric:biometric:1.0.1"
 
     //API connection
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation group: 'com.squareup.retrofit2', name: 'converter-scalars', version: '2.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
+
+    // ml
+    implementation 'com.google.mlkit:image-labeling:17.0.7'
+    implementation 'com.google.mlkit:image-labeling-custom:17.0.1'
+    implementation 'com.google.mlkit:object-detection:17.0.0'
+    implementation 'com.google.mlkit:face-detection:16.1.5'
+
+    // text
+    implementation 'org.tensorflow:tensorflow-lite-task-text:0.2.0'
+    // androidx camera
+    implementation 'androidx.camera:camera-core:1.1.0'
+    implementation 'androidx.camera:camera-view:1.1.0'
+    implementation 'androidx.camera:camera-camera2:1.1.0'
+    implementation 'androidx.camera:camera-lifecycle:1.1.0'
+
+    // pose
+    // If you want to use the base sdk
+    implementation 'com.google.mlkit:pose-detection:18.0.0-beta3'
+    // If you want to use the accurate sdk
+    implementation 'com.google.mlkit:pose-detection-accurate:18.0.0-beta3'
+
+    implementation 'org.tensorflow:tensorflow-lite:2.4.0'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.4.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.2.0'
+
+    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.google.guava:guava:27.1-android'
+
+    //display image from url
+    implementation 'com.squareup.picasso:picasso:2.8'
+
 }

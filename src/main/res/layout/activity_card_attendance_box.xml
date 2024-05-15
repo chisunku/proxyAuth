@@ -4,7 +4,68 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:background="@color/white"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/checkOutBox"
+        android:layout_width="170dp"
+        android:layout_height="135dp"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="25dp"
+        android:background="#C3DBED"
+        android:padding="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/checkinBox"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <ImageView
+            android:id="@+id/checkOutIcon"
+            android:layout_width="54dp"
+            android:layout_height="56dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/CheckOutBoxName"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="Check Out"
+            android:textColor="@color/black"
+            android:textSize="19dp"
+            app:layout_constraintStart_toEndOf="@+id/checkOutIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/checkOutTime"
+            android:layout_width="113dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:text="Time"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkOutIcon" />
+
+        <TextView
+            android:id="@+id/checkOutDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="36dp"
+            android:text="Not Checked out"
+            android:textColor="@color/grey"
+            android:textSize="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkOutIcon" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card"
@@ -21,69 +82,66 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="170dp"
-            android:layout_height="135dp"
-            android:padding="5dp"
-            android:background="#C3DBED">
-
-
-            <ImageView
-                android:id="@+id/icon"
-                android:layout_width="54dp"
-                android:layout_height="56dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:srcCompat="@tools:sample/avatars" />
-
-            <TextView
-                android:id="@+id/boxName"
-                android:layout_width="96dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:text="Check In"
-                android:textColor="@color/black"
-                android:textSize="19dp"
-                app:layout_constraintStart_toEndOf="@+id/icon"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="113dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="8dp"
-                android:text="Time"
-                android:textColor="@color/black"
-                android:textSize="18dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/icon" />
-
-            <TextView
-                android:id="@+id/Date"
-                android:layout_width="113dp"
-                android:layout_height="20dp"
-                android:layout_marginStart="36dp"
-                android:layout_marginTop="36dp"
-                android:text="Time"
-                android:textColor="@color/grey"
-                android:textSize="15dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/icon" />
-
-            <!--            <TextView-->
-            <!--                android:id="@+id/status"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginStart="30dp"-->
-            <!--                android:layout_marginTop="26dp"-->
-            <!--                android:text="Status"-->
-            <!--                app:layout_constraintStart_toStartOf="parent"-->
-            <!--                app:layout_constraintTop_toBottomOf="@+id/time" />-->
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/checkinBox"
+        android:layout_width="170dp"
+        android:layout_height="135dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="20dp"
+        android:background="#C3DBED"
+        android:padding="5dp"
+        app:layout_constraintEnd_toStartOf="@+id/constraintLayout2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <ImageView
+            android:id="@+id/checkInIcon"
+            android:layout_width="54dp"
+            android:layout_height="56dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/checkInBoxName"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="Check In"
+            android:textColor="@color/black"
+            android:textSize="19dp"
+            app:layout_constraintStart_toEndOf="@+id/checkInIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/checkInTime"
+            android:layout_width="113dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:text="Time"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkInIcon" />
+
+        <TextView
+            android:id="@+id/checkInDate"
+            android:layout_width="113dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="36dp"
+            android:text="Time"
+            android:textColor="@color/grey"
+            android:textSize="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkInIcon" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
