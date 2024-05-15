@@ -94,7 +94,7 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
                 // TODO: Get info about the selected place.
                 Log.i("Places_auto_complete", "Place: " + place.getName() + ", " + place.getId()+", "+place.getLatLng());
                 if (place != null && place.getLatLng() != null) {
-                    Toast.makeText(getContext(), "in if"+ place.getLatLng(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(), "in if"+ place.getLatLng(), Toast.LENGTH_SHORT).show();
 //                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15), new GoogleMap.CancelableCallback() {
                         @Override
@@ -111,7 +111,7 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
                     });
                 }
                 else{
-                    Toast.makeText(getContext(), "in else", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(), "in else", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override

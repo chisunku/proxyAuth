@@ -144,7 +144,7 @@ public class Registration extends AppCompatActivity {
             if (imageUri != null) {
                 // Convert the image URI to a multipart file
                 MultipartBody.Part imagePart = convertUriToMultipartFile(imageUri);
-                Toast.makeText(this, "the imagepart is : "+imagePart.toString(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "the imagepart is : "+imagePart.toString(), Toast.LENGTH_SHORT).show();
                 if (imagePart != null) {
                     // Image converted successfully, you can now use it in your API request
                     // For example, you can pass it to a Retrofit API call

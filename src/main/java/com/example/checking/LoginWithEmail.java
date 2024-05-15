@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -73,7 +76,21 @@ public class LoginWithEmail extends AppCompatActivity {
                         public void onFailure(Call<Employee> call, Throwable t) {
                             // Handle network errors
                             System.out.println("error Auth with email: " + t.fillInStackTrace());
-                            Toast.makeText(getApplicationContext(), "Error! This is not your primary phone. Please login with your primary phone or reach out to the admin.", Toast.LENGTH_LONG).show();
+                            // Inflate the custom layout
+                            LayoutInflater inflater = getLayoutInflater();
+                            View layout = inflater.inflate(R.layout.toast_layout, null);
+
+// Set the text for the TextView in the custom layout
+                            TextView textView = layout.findViewById(R.id.textView);
+                            textView.setText("Error! This is not your primary phone. Please login with your primary phone or reach out to the admin.");
+
+// Create and show the Toast
+                            Toast toast = new Toast(getApplicationContext());
+                            toast.setDuration(Toast.LENGTH_LONG);
+                            toast.setView(layout);
+                            toast.show();
+
+//                            Toast.makeText(getApplicationContext(), "Error! This is not your primary phone. Please login with your primary phone or reach out to the admin.", Toast.LENGTH_LONG).show();
                             Intent i = new Intent(getApplicationContext(), Authentication.class);
                             startActivity(i);
                         }
@@ -101,7 +118,20 @@ public class LoginWithEmail extends AppCompatActivity {
                         public void onFailure(Call<Employee> call, Throwable t) {
                             // Handle network errors
                             System.out.println("error Auth with email: " + t.fillInStackTrace());
-                            Toast.makeText(getApplicationContext(), "Error! This is not your primary phone. Please login with your primary phone or reach out to the admin.", Toast.LENGTH_LONG).show();
+                            // Inflate the custom layout
+                            LayoutInflater inflater = getLayoutInflater();
+                            View layout = inflater.inflate(R.layout.toast_layout, null);
+
+// Set the text for the TextView in the custom layout
+                            TextView textView = layout.findViewById(R.id.textView);
+                            textView.setText("Error! This is not your primary phone. Please login with your primary phone or reach out to the admin.");
+
+// Create and show the Toast
+                            Toast toast = new Toast(getApplicationContext());
+                            toast.setDuration(Toast.LENGTH_LONG);
+                            toast.setView(layout);
+                            toast.show();
+//                            Toast.makeText(getApplicationContext(), "Error! This is not your primary phone. Please login with your primary phone or reach out to the admin.", Toast.LENGTH_LONG).show();
                             Intent i = new Intent(getApplicationContext(), Authentication.class);
                             startActivity(i);
                         }

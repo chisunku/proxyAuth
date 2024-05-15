@@ -29,6 +29,7 @@ import com.example.checking.Model.FaceModel;
 import com.example.checking.R;
 import com.example.checking.RegisterFace;
 import com.example.checking.Registration;
+import com.example.checking.RegistrationActivity;
 import com.example.checking.Service.APIService;
 import com.example.checking.Service.RetrofitClient;
 import com.example.checking.helpers.vision.FaceGraphic;
@@ -329,8 +330,8 @@ public class FaceRecognitionProcessor extends VisionBaseProcessor<List<Face>> {
                             Log.d(TAG, "onResponse: response on employee save : "+response.body());
 
                             if(response.code()!=200 && response.body()==null){
-
-                                Intent i = new Intent(content, Registration.class);
+                                Toast.makeText(content, "Employee already registered. Please contact admin if needed.", Toast.LENGTH_SHORT).show();
+                                Intent i = new Intent(content, RegistrationActivity.class);
                                 content.startActivity(i);
                             }
 

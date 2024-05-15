@@ -58,7 +58,9 @@ public class Authentication extends AppCompatActivity {
             Log.d("TAG", "onCreate: shared pref empty");
             // Shared preferences are empty, show login page
             // For simplicity, let's start a LoginActivity (replace with your login activity)
-            Intent loginIntent = new Intent(this, Registration.class);
+
+            //call the activity which has registration and admin login button
+            Intent loginIntent = new Intent(this, RegistrationActivity.class);
             startActivity(loginIntent);
             finish(); // Finish the current activity to prevent the user from navigating back
         } else {

@@ -179,7 +179,7 @@ public class EmpView extends Fragment {
                         @Override
                         public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                             Log.d("TAG", "onResponse: called! " + response);
-                            Toast.makeText(getContext(), "called!!", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getContext(), "called!!", Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
