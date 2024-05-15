@@ -87,6 +87,12 @@
             android:exported="true">
         </activity>
 
+        <activity
+
+            android:name=".RegistrationActivity"
+            android:exported="true">
+        </activity>
+
         <service android:name=".LocationService"
             android:enabled="true"
             android:exported="false"

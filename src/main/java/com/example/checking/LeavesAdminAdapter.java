@@ -89,7 +89,7 @@ public class LeavesAdminAdapter extends RecyclerView.Adapter<LeavesAdminAdapter.
         holder.accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "Accepted : "+model.getId()+" email : "+model.getEmail(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Leave Approved", Toast.LENGTH_SHORT).show();
                 Call<String> call = apiService.approveLeave(model.getId(), employee.getName());
                 call.enqueue(new Callback<String>() {
                     @Override
@@ -116,7 +116,7 @@ public class LeavesAdminAdapter extends RecyclerView.Adapter<LeavesAdminAdapter.
         holder.reject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Rejected : "+model.getId()+" email : "+model.getEmail(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Leave Rejected", Toast.LENGTH_SHORT).show();
 
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context,
                         R.style.MaterialAlertDialog_App);

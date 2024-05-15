@@ -40,6 +40,9 @@ public interface APIService {
     @POST("/checkout")
     Call<Attendance> checkout(@Body Attendance attendanceModel);
 
+    @POST("/checkoutLocation")
+    Call<Employee> checkoutLocation(@Body Employee employee);
+
     //get attendance history
     @GET("/getUserAttendance")
     Call<List<Attendance>> getUserAttendance(@Query("email") String email);

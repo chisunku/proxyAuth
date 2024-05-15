@@ -294,6 +294,23 @@ public class HomeFragment extends Fragment implements FragmentChangeListener {
                 boxName.setText("Checked Out");
                 dataHistory.get(0).setCheckOutDate(fetchAttnedance.getCheckOutDate());
                 attendanceHistoryAdapter.notifyDataSetChanged();
+
+                //checkout location
+                Call<Employee> callLoc = apiService.checkoutLocation(employee);
+                callLoc.enqueue(new Callback<Employee>() {
+                    @Override
+                    public void onResponse(Call<Employee> call, Response<Employee> response) {
+                        System.out.println("response of checkout location : "+response);
+                        Employee emp = response.body();
+                        System.out.println("emp location : "+emp.getLatitude()+" "+emp.getLongitude());
+                    }
+
+                    @Override
+                    public void onFailure(Call<Employee> call, Throwable throwable) {
+
+                    }
+                });
+
             }
 
             @Override

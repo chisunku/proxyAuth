@@ -74,12 +74,15 @@ public class AddLeaveFragment extends Fragment {
         EditText reason = view.findViewById(R.id.reason);
         reason.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
+                Log.d("TAG", "onCreateView: setting reason : "+reason.getText().toString());
                 leave.setLeaveReason(reason.getText().toString());
             }
         });
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                leave.setLeaveReason(reason.getText().toString());
+                Log.d("TAG", "onClick: save btn : "+leave.getLeaveReason());
                 Call<Leaves> call = apiService.addLeave(leave);
                 call.enqueue(new Callback<Leaves>() {
                     @Override

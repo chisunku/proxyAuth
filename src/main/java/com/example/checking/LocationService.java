@@ -137,10 +137,10 @@ public class LocationService extends Service {
                 @Override
                 public void onResponse(Call<com.example.checking.Model.Location> call, Response<com.example.checking.Model.Location> response) {
                     if(response!=null && response.code()==200 && response.body()!=null){
-                        Toast.makeText(LocationService.this, "Inside location "+response.body().getName(), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(LocationService.this, "Inside location "+response.body().getName(), Toast.LENGTH_SHORT).show();
                     }
                     else{
-                        Toast.makeText(LocationService.this, "Not inside any office", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(LocationService.this, "Not inside any office", Toast.LENGTH_SHORT).show();
                     }
                 }
 

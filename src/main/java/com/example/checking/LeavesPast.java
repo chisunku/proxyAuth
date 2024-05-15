@@ -40,7 +40,8 @@ public class LeavesPast extends Fragment {
     }
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_leaves_type, container, false);
-
+        TextView heading = view.findViewById(R.id.heading);
+        heading.setVisibility(View.GONE);
         Log.d("TAG", "onCreateView: Inside past leaves fragment");
 
         Bundle bundle = getArguments();
