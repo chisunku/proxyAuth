@@ -58,7 +58,7 @@ public class Boundary extends Fragment implements OnMapReadyCallback {
     Boolean admin;
     private void initializePlaces() {
         if (!Places.isInitialized()) {
-            Places.initialize(getContext(), "AIzaSyAHNqB-5OeXeVss95CwnVO7IFjKbJe7mzE");
+            Places.initialize(getContext(), "API_KEY");
         }
     }
 
