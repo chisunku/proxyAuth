@@ -22,9 +22,9 @@ By combining GPS technology and facial recognition, organizations can expect a m
 and secure solution for monitoring employee attendance, reducing the occurrence of proxy
 attendance, and enhancing the accuracy and reliability of attendance records.
 
-# (Demo Link)[https://drive.google.com/file/d/1MalGSODvQtrU_xNe8AcwdnapLY4P0T9B/view?usp=drive_link]
+# [Demo Link](https://drive.google.com/file/d/1MalGSODvQtrU_xNe8AcwdnapLY4P0T9B/view?usp=drive_link)
 
-# (Pitch)[https://drive.google.com/file/d/1KnudiRGRkNyzNAls6q3noO6vvehvPFe1/view?usp=drive_link]
+# [Pitch](https://drive.google.com/file/d/1KnudiRGRkNyzNAls6q3noO6vvehvPFe1/view?usp=drive_link)
 
 # To rebuild the project:
 ## Frontend (Android)
