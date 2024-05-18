@@ -26,14 +26,14 @@ attendance, and enhancing the accuracy and reliability of attendance records.
 
 # [Pitch](https://drive.google.com/file/d/1KnudiRGRkNyzNAls6q3noO6vvehvPFe1/view?usp=drive_link)
 
-# To rebuild the project:
-## Frontend (Android)
+## To rebuild the project:
+### Frontend (Android)
 1. Clone the repo
 2. Run the project on Android studios
 3. create an emulator with a min of 33 API
 4. Add backend URL to [RetrofitClient.java](src/main/java/com/example/checking/Service/RetrofitClient.java)
 
-## Backend (Spring Boot)
+### Backend (Spring Boot)
 1. clone the [repo](https://github.com/chisunku/proxyAuthAPIs.git)
 2. add mongodb url and DB name to application.properties
 3. run the backend 
