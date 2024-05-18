@@ -31,6 +31,7 @@ attendance, and enhancing the accuracy and reliability of attendance records.
 1. Clone the repo
 2. Run the project on Android studios
 3. create an emulator with a min of 33 API
+4. Add backend URL to [RetrofitClient.java](src/main/java/com/example/checking/Service/RetrofitClient.java)
 
 ## Backend (Spring Boot)
 1. clone the [repo](https://github.com/chisunku/proxyAuthAPIs.git)
