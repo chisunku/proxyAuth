@@ -36,4 +36,11 @@ attendance, and enhancing the accuracy and reliability of attendance records.
 ### Backend (Spring Boot)
 1. clone the [repo](https://github.com/chisunku/proxyAuthAPIs.git)
 2. add mongodb url and DB name to application.properties
-3. run the backend 
+3. run the backend
+
+### DB
+1. create a mongoDB cluster
+2. fetch the mongoDB URI
+3. insert it into backend applications.properties
+
+Note: All the documents models are inside the code and will get created when you run the backend. 
